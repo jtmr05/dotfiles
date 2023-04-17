@@ -1,0 +1,8 @@
+#!/bin/sh
+
+PVPN=protonvpn-cli
+
+$PVPN d
+$PVPN ks --on
+#$PVPN ks --permanent
+$PVPN c --cc NL # switch to US if needed

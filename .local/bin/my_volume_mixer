@@ -1,0 +1,85 @@
+#!/usr/bin/env perl
+
+use v5.36;
+
+use constant LOW_VOLUME_ICON 	=> 'audio-volume-low';
+use constant MEDIUM_VOLUME_ICON => 'audio-volume-medium';
+use constant HIGH_VOLUME_ICON 	=> 'audio-volume-high';
+use constant MUTED_VOLUME_ICON 	=> 'audio-volume-muted';
+
+use constant LOW_VOLUME 		=> 35;
+use constant HIGH_VOLUME 		=> 75;
+
+use constant PROGRESS_BAR_LEN	=> 23;
+use constant FULL_BOCK			=> '▄';
+use constant EMPTY_BOCK			=> '▁';
+
+
+sub main(){
+
+	if(scalar @ARGV == 0){
+		say STDERR "$0: missing operand\n"
+		. "usage: $0 [OPTION]\n\n"
+		. "available options:\n"
+		. "  n\t\tset volume to n\n"
+		. "  +n\t\tincrease volume by n\n"
+		. "  -n\t\tdecrease volume by n\n"
+		. "  mute\t\tmute volume\n"
+		. "  unmute\tunmute volume\n"
+		. "  toggle\ttoggle between muted and unmuted";
+
+		exit 1;
+	}
+
+	my $arg = shift @ARGV;
+
+	if($arg =~ m/^(\d+)$/){
+		system "pamixer --set-volume $1";
+	}
+	elsif($arg =~ m/^\+(\d+)$/){
+		system "pamixer -i $1";
+	}
+	elsif($arg =~ m/^\-(\d+)$/){
+		system "pamixer -d $1";
+	}
+	elsif($arg =~ m/^toggle$/){
+		system 'pamixer -t';
+	}
+	elsif($arg =~ m/^mute$/){
+		system 'pamixer -m';
+	}
+	elsif($arg =~ m/^unmute$/){
+		system 'pamixer -u';
+	}
+	else {
+		say STDERR "$0: invalid option: '$arg'";
+		exit 2;
+	}
+
+
+	my $volume = `pamixer --get-volume`; chomp $volume;
+	my $is_muted = `pamixer --get-volume-human` eq "muted\n";
+
+	my $icon = MEDIUM_VOLUME_ICON;
+
+	$icon = LOW_VOLUME_ICON   if($volume < LOW_VOLUME);
+	$icon = HIGH_VOLUME_ICON  if($volume > HIGH_VOLUME);
+	$icon = MUTED_VOLUME_ICON if($is_muted);
+
+
+	my $progress_bar = '';
+	my $full_blocks_end_index = int $volume / 100 * PROGRESS_BAR_LEN - 1;
+
+	foreach(0..$full_blocks_end_index){
+		$progress_bar .= FULL_BOCK;
+	}
+
+	foreach(($full_blocks_end_index + 1)..(PROGRESS_BAR_LEN - 1)){
+		$progress_bar .= EMPTY_BOCK;
+	}
+
+	system "notify-send -r 777 --app-name=$0 -i $icon 'Volume' '$volume%\n$progress_bar' &";
+	exit 0;
+}
+
+main();

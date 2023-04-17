@@ -1,0 +1,15 @@
+configuration {
+
+	modi: "drun,combi";
+	font: "FiraCode 18";
+	combi-modi: "drun";
+	show-icons: true;
+
+
+	ssh-client: "ssh";
+	//terminal: "/usr/bin/gnome-terminal";
+	ssh-command: "{terminal} -e '{ssh-client} {host}'";
+}
+
+//@theme "Monokai"
+@theme "~/.local/share/rofi/themes/Adapta-Nokto.rasi"

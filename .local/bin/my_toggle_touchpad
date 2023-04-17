@@ -1,0 +1,49 @@
+#!/usr/bin/env perl
+
+use v5.36;
+use autodie;
+
+
+use constant DEVICE_ON  => 'input-touchpad';
+use constant DEVICE_OFF => 'input-touchpad-off';
+
+
+sub get_device_id(){
+
+    open my $pipe, '-|', 'xinput list';
+
+    while(<$pipe>){
+        return $1 if(m/touchpad\s+id=(\d+)/i);
+    }
+
+    return undef;
+}
+
+sub get_prop_id_value_pair($device_id){
+
+    open my $pipe, '-|', "xinput list-props $device_id";
+
+    while(<$pipe>){
+        return ($1, $2) if(m/device enabled \((\d+)\):\s+(\d)/i);
+    }
+
+    return undef;
+}
+
+
+sub main(){
+
+    my $device_id = get_device_id() or die 'Device not found';
+    my ($prop_id, $curr_value) = get_prop_id_value_pair($device_id) or die 'Property not found';
+
+    my $new_value = 1 - $curr_value;
+
+    system "xinput set-prop $device_id $prop_id $new_value" and die "Failed to set new value";
+
+    system "notify-send -r 778 --app-name $0 -i " .
+        ($new_value ?
+            DEVICE_ON  . " 'Touchpad' 'Device is now enabled'" :
+            DEVICE_OFF . " 'Touchpad' 'Device is now disabled'");
+}
+
+main();

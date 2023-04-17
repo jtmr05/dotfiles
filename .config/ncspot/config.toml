@@ -1,0 +1,15 @@
+bitrate=160
+
+# https://github.com/hrkfdn/ncspot/blob/main/doc/users.md#custom-keybindings
+
+[keybindings]
+g="move top"
+G="move bottom"
+"Ctrl+u"="move up 10"
+"Ctrl+d"="move down 10"
+End="noop"
+Home="noop"
+Left="noop"
+Right="noop"
+Down="noop"
+Up="noop"
