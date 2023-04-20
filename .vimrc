@@ -199,6 +199,9 @@ autocmd FileType xml  setlocal shiftwidth=2 softtabstop=2
 autocmd FileType html setlocal shiftwidth=2 softtabstop=2
 autocmd FileType pug  setlocal shiftwidth=2 softtabstop=2
 
+" use mouse for scrolling
+set mouse=a
+
 
 " toggle wrap
 noremap <F8> :set wrap!<CR>
@@ -248,6 +251,7 @@ nnoremap <leader>fg :call fzf#run(
 
 " -- VimPolyglot
 let g:polyglot_disabled = ['autoindent']
+let g:perl_sub_signatures = 1
 
 " plugin manager options
 let data_dir = '~/.vim'
