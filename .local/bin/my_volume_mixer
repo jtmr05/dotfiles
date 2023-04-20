@@ -21,14 +21,14 @@ sub main(){
 		say STDERR "$0: missing operand\n"
 		. "usage: $0 [OPTION]\n\n"
 		. "available options:\n"
-		. "  n\t\tset volume to n\n"
-		. "  +n\t\tincrease volume by n\n"
-		. "  -n\t\tdecrease volume by n\n"
+		. "  NUM\t\tset volume to NUM\n"
+		. "  +NUM\t\tincrease volume by NUM\n"
+		. "  -NUM\t\tdecrease volume by NUM\n"
 		. "  mute\t\tmute volume\n"
 		. "  unmute\tunmute volume\n"
 		. "  toggle\ttoggle between muted and unmuted";
 
-		exit 1;
+		return 1;
 	}
 
 	my $arg = shift @ARGV;
@@ -53,7 +53,7 @@ sub main(){
 	}
 	else {
 		say STDERR "$0: invalid option: '$arg'";
-		exit 2;
+		return 2;
 	}
 
 
@@ -79,7 +79,9 @@ sub main(){
 	}
 
 	system "notify-send -r 777 --app-name=$0 -i $icon 'Volume' '$volume%\n$progress_bar' &";
-	exit 0;
+	return 0;
 }
 
-main();
+unless(caller){
+	exit main();
+}

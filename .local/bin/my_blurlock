@@ -140,10 +140,9 @@ sub generate_final_image($is_black){
 }
 
 
-
 sub main(){
 
-    system 'import -silent -window root ' . IMAGE_PATH and die IMAGE_PATH . ": $!";
+    (system 'import -silent -window root ' . IMAGE_PATH) == 0 or die IMAGE_PATH . ": $!";
 
     my $is_black = make_black_scheme();
     generate_final_image($is_black);
@@ -171,7 +170,9 @@ sub main(){
 
     system 'i3lock -i ' . IMAGE_PATH . " -e $i3lock_params";
 
-    #unlink IMAGE_PATH;
+	#unlink IMAGE_PATH;
 }
 
-main();
+unless(caller){
+	main();
+}

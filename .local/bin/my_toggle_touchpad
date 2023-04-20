@@ -38,7 +38,7 @@ sub main(){
 
     my $new_value = 1 - $curr_value;
 
-    system "xinput set-prop $device_id $prop_id $new_value" and die "Failed to set new value";
+    (system "xinput set-prop $device_id $prop_id $new_value") == 0 or die 'Failed to set new value';
 
     system "notify-send -r 778 --app-name $0 -i " .
         ($new_value ?
@@ -46,4 +46,6 @@ sub main(){
             DEVICE_OFF . " 'Touchpad' 'Device is now disabled'");
 }
 
-main();
+unless(caller){
+	main();
+}
