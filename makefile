@@ -28,7 +28,8 @@ SCRIPTS			:=\
 	.local/bin/my_init_polybar\
 	.local/bin/my_init_protonvpn\
 	.local/bin/my_toggle_touchpad\
-	.local/bin/my_volume_mixer
+	.local/bin/my_volume_mixer\
+	.local/bin/remaps
 
 
 # make default goal (using make with no specified recipe)

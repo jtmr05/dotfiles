@@ -124,9 +124,9 @@ noremap Q <nop>
 " J at the beginning of the line
 noremap J mjJ'j
 
-" move lines when in visual mode
-vnoremap <C-J> :m '>+1<CR>gv=gv
-vnoremap <C-K> :m '<-2<CR>gv=gv
+" move selected lines when in visual mode (countable!!!)
+vnoremap <expr> <C-J> ":m .+" . v:count1 . "<CR>gv=gv"
+vnoremap <expr> <C-K> ":m .-" . (v:count1 + 1) . "<CR>gv=gv"
 
 " Perl substitution
 noremap S :perldo s//g<left><left>
@@ -200,7 +200,7 @@ autocmd FileType html setlocal shiftwidth=2 softtabstop=2
 autocmd FileType pug  setlocal shiftwidth=2 softtabstop=2
 
 " use mouse for scrolling
-set mouse=a
+" set mouse=a
 
 
 " toggle wrap
@@ -315,6 +315,9 @@ nnoremap <buffer> <silent> +d :JupyterCd %:p:h<CR>
 
 " Send a selection of lines
 nnoremap <buffer> <silent> +s :JupyterSendCell<CR>
+
+" New cell
+nnoremap +n o## BEGIN<CR><CR><CR>## END<Esc>kO
 " nnoremap <buffer> <silent> <localleader>E :JupyterSendRange<CR>
 " nmap     <buffer> <silent> <localleader>e <Plug>JupyterRunTextObj
 " vmap     <buffer> <silent> <localleader>e <Plug>JupyterRunVisual

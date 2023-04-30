@@ -187,10 +187,9 @@ bindsym $mod+Shift+7 move container to workspace $ws7; workspace $ws7
 bindsym $mod+Shift+8 move container to workspace $ws8; workspace $ws8
 
 # Open applications on specific workspaces
+assign [class="WebCord"] $ws1
 assign [class="firefox"] $ws2
 assign [class="Nau3D"] $ws5
-# doesn't work ??
-# assign [class="Spotify"] $ws3
 
 # Open specific applications in floating mode
 for_window [title="alsamixer"] floating enable
