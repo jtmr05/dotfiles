@@ -19,7 +19,10 @@ CONFIG_FILES 	:=\
 	.config/polybar\
 	.config/pycodestyle\
 	.config/rofi\
-	.config/zathura
+	.config/zathura\
+	.config/remaps\
+	.config/qt5ct/qt5ct.conf\
+	.config/qt6ct/qt6ct.conf
 
 SCRIPTS			:=\
 	.local/bin/my_blurlock\
@@ -28,8 +31,7 @@ SCRIPTS			:=\
 	.local/bin/my_init_polybar\
 	.local/bin/my_init_protonvpn\
 	.local/bin/my_toggle_touchpad\
-	.local/bin/my_volume_mixer\
-	.local/bin/remaps
+	.local/bin/my_volume_mixer
 
 
 # make default goal (using make with no specified recipe)

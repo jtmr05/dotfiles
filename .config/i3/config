@@ -284,7 +284,7 @@ exec --no-startup-id nm-applet
 exec_always --no-startup-id fix_xcursor
 exec_always --no-startup-id my_init_picom
 exec_always --no-startup-id my_init_polybar
-exec --no-startup-id remaps
+exec --no-startup-id ~/.config/remaps
 exec --no-startup-id xfce4-power-manager
 exec --no-startup-id xautolock -time 10 -locker my_blurlock -notify 15 -notifier 'notify-send "Screen locking soon..."'
 # exec --no-startup-id xautolock -time 1 -locker 'my_i3exit suspend' -notify 15 -notifier 'notify-send "Screen going to sleep..."'

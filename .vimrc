@@ -16,7 +16,8 @@ silent! endwhile
 " Allow backspacing over everything in insert mode.
 set backspace=indent,eol,start
 
-" set ai            " always set autoindenting on
+set ai            " always set autoindenting on
+set si            " smart indent
 " set backup        " keep a backup file
 set viminfo='20,\"50    " read/write a .viminfo file, don't store more
             " than 50 lines of registers
@@ -57,7 +58,6 @@ if has("autocmd")
   augroup END
 endif
 
-filetype plugin on
 
 "if has('langmap') && exists('+langremap')
   " Prevent that the langmap option applies to characters that result from a
@@ -157,6 +157,10 @@ nnoremap <C-U> <C-U>zz
 noremap n nzz
 noremap N Nzz
 
+" quick spell suggestion
+noremap zq 1z=
+inoremap <C-L> <Esc>[s1z=`]a
+
 " make current file executable
 nnoremap <silent> <leader>x :!chmod +x %<CR><CR>
 
@@ -178,6 +182,12 @@ tnoremap <C-N> <C-W>N
 " CRLF to LF
 noremap <F4> :e ++ff=unix<CR>:perldo s/\r//g<CR>
 
+" edit this file
+command! Vrc :e ~/.vimrc
+
+" source this file
+command! Svrc :source ~/.vimrc
+
 " delete trailing white space
 command! Trim :perldo s/\s+$//gm
 noremap <F5> :Trim<CR>
@@ -191,8 +201,9 @@ set colorcolumn=100
 
 " tab size
 " filetype plugin indent on
-" set expandtab
+set expandtab
 set tabstop=4
+set softtabstop=-1
 set shiftwidth=4
 
 autocmd FileType xml  setlocal shiftwidth=2 softtabstop=2
@@ -200,7 +211,7 @@ autocmd FileType html setlocal shiftwidth=2 softtabstop=2
 autocmd FileType pug  setlocal shiftwidth=2 softtabstop=2
 
 " use mouse for scrolling
-" set mouse=a
+set mouse=a
 
 
 " toggle wrap
@@ -247,10 +258,10 @@ nnoremap <leader>fg :call fzf#run(
 "        \{'source': 'git ls-files', 'sink': 'vert new', 'options': ['--prompt', getcwd()]}))<CR>'
 
 
-
+filetype plugin on
 
 " -- VimPolyglot
-let g:polyglot_disabled = ['autoindent']
+let g:polyglot_disabled = ['autoindent', 'csv']
 let g:perl_sub_signatures = 1
 
 " plugin manager options
@@ -340,6 +351,9 @@ set termguicolors
 
 " Wrap text by default
 set nowrap
+
+" Enable font ligatures
+set guiligatures=!\"#$%&()*+-./:<=>?@[]^_{\|~
 
 " :set [option]?            ==> print current value for given option
 " :echo [var]               ==> print current value for given var

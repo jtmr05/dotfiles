@@ -148,7 +148,7 @@ sub main(){
     generate_final_image($is_black);
 
 
-    # littel shift hack eheheh
+    # little shift hack eheheh
     # make a scalar reference to the value we want to interpolate
     # then dereference it
     my $i3lock_params =
