@@ -1,4 +1,19 @@
+" set leader key to spacebar
+let g:mapleader = ' '
+
+" comment strings and numbers in C comments
+let g:c_comment_strings=1
+
+" block cursor
+let &t_ti.="\e[1 q"
+let &t_SI.="\e[5 q"
+let &t_EI.="\e[1 q"
+let &t_te.="\e[0 q"
+
+
+" enable syntax highlighting
 syntax on
+
 
 " Use Vim settings, rather than Vi settings (much better!).
 " This must be first, because it changes other options as a side effect.
@@ -7,20 +22,12 @@ if &compatible
   set nocompatible
 endif
 
-" When the +eval feature is missing, the set command above will be skipped.
-" Use a trick to reset compatible only when the +eval feature is missing.
-silent! while 0
-  set nocompatible
-silent! endwhile
-
 " Allow backspacing over everything in insert mode.
 set backspace=indent,eol,start
 
 set ai            " always set autoindenting on
 set si            " smart indent
-" set backup        " keep a backup file
-set viminfo='20,\"50    " read/write a .viminfo file, don't store more
-            " than 50 lines of registers
+set viminfo='20,\"50    " read/write a .viminfo file, don't store more than 50 lines of registers
 set history=50        " keep 50 lines of command line history
 set ruler        " show the cursor position all the time
 set showcmd        " display incomplete commands
@@ -31,88 +38,41 @@ set display=truncate
 
 " Show a few lines of context around the cursor.  Note that this makes the
 " text scroll if you mouse-click near the start or end of the window.
-set scrolloff=5
+set scrolloff=3
 
 " Do not recognize octal numbers for Ctrl-A and Ctrl-X, most users find it
 " confusing.
 set nrformats-=octal
 
-" Only do this part when compiled with support for autocommands
-if has("autocmd")
-  augroup fedora
-  autocmd!
-  " In text files, always limit the width of text to 78 characters
-  " autocmd BufRead *.txt set tw=78
-  " When editing a file, always jump to the last cursor position
-  autocmd BufReadPost *
-  \ if line("'\"") > 0 && line ("'\"") <= line("$") |
-  \   exe "normal! g'\"" |
-  \ endif
-  " don't write swapfile on most commonly used directories for NFS mounts or USB sticks
-  autocmd BufNewFile,BufReadPre /media/*,/run/media/*,/mnt/* set directory=~/tmp,/var/tmp,/tmp
-  " start with spec file template
-  " 1724126 - do not open new file with .spec suffix with spec file template
-  " apparently there are other file types with .spec suffix, so disable the
-  " template
-  " autocmd BufNewFile *.spec 0r /usr/share/vim/vimfiles/template.spec
-  augroup END
-endif
-
-
-"if has('langmap') && exists('+langremap')
-  " Prevent that the langmap option applies to characters that result from a
-  " mapping.  If set (default), this may break plugins (but it's backward
-  " compatible).
-"  set nolangremap
-"endif
-
-
-
-let c_comment_strings=1
-
+" window split options
 set splitright
 set splitbelow
-
-" Convenient command to see the difference between the current buffer and the
-" file it was loaded from, thus the changes you made.
-" Only define it when not defined already.
-" Revert with: ":delcommand DiffOrig".
-if !exists(":DiffOrig")
-  command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_ | diffthis
-          \ | wincmd p | diffthis
-endif
-
-nnoremap <F2> :DiffOrig<CR>za
-
-" set leader key to spacebar
-let mapleader = " "
 
 " relative line numbers
 set nu
 set rnu
 
 " search options ('/' and '?')
-set hlsearch
 set incsearch
 set nohlsearch
 set ignorecase
 set smartcase
 
-" block cursor
-let &t_ti.="\e[1 q"
-let &t_SI.="\e[5 q"
-let &t_EI.="\e[1 q"
-let &t_te.="\e[0 q"
-
 " max number of tabs
 set tabpagemax=100
+
+" Do not wrap text by default
+set nowrap
+
+" https://www.reddit.com/r/vim/comments/6qfhob/how_to_make_vim_follow_terminals_colorscheme/
+set termguicolors
+
 
 " chad mode enabled
 noremap <up> <nop>
 noremap <left> <nop>
 noremap <down> <nop>
 noremap <right> <nop>
-
 
 " back to file explorer
 nnoremap <leader>pv :Explore<CR>
@@ -132,7 +92,7 @@ vnoremap <expr> <C-K> ":m .-" . (v:count1 + 1) . "<CR>gv=gv"
 noremap S :perldo s//g<left><left>
 
 " capital y with d-like behavior
-map Y y$
+noremap Y y$
 
 " yank to system clipboard
 noremap <leader>y "+y
@@ -161,6 +121,12 @@ noremap N Nzz
 noremap zq 1z=
 inoremap <C-L> <Esc>[s1z=`]a
 
+" comment lines
+" TODO autocmd to switch between terminators
+nnoremap çç mpI//<Esc>mp
+nnoremap Ç mpi//<Esc>mp
+vnoremap ç mp<Esc>`>a*/<Esc>`<i/*<Esc>mp
+
 " make current file executable
 nnoremap <silent> <leader>x :!chmod +x %<CR><CR>
 
@@ -176,25 +142,16 @@ nnoremap <leader>k <C-W>K
 nnoremap <leader>l <C-W>L
 nnoremap <leader>h <C-W>H
 
-" terminal normal mode
-tnoremap <C-N> <C-W>N
-
 " CRLF to LF
-noremap <F4> :e ++ff=unix<CR>:perldo s/\r//g<CR>
-
-" edit this file
-command! Vrc :e ~/.vimrc
-
-" source this file
-command! Svrc :source ~/.vimrc
+noremap <leader>ml :e ++ff=unix<CR>:perldo s/\r//g<CR>
 
 " delete trailing white space
 command! Trim :perldo s/\s+$//gm
-noremap <F5> :Trim<CR>
+noremap <leader>mt :Trim<CR>
 
 " convert tabs to spaces (needs some fixing)
 command! TabsToSpaces :perldo s/\t/    /gm
-noremap <F6> :TabsToSpaces<CR>
+noremap <leader>ms :TabsToSpaces<CR>
 
 " vertical guideline
 set colorcolumn=100
@@ -206,16 +163,16 @@ set tabstop=4
 set softtabstop=-1
 set shiftwidth=4
 
-autocmd FileType xml  setlocal shiftwidth=2 softtabstop=2
-autocmd FileType html setlocal shiftwidth=2 softtabstop=2
-autocmd FileType pug  setlocal shiftwidth=2 softtabstop=2
+autocmd FileType xml  setlocal shiftwidth=2
+autocmd FileType html setlocal shiftwidth=2
+autocmd FileType pug  setlocal shiftwidth=2
 
 " use mouse for scrolling
 set mouse=a
 
 
 " toggle wrap
-noremap <F8> :set wrap!<CR>
+noremap <leader>mw :set wrap!<CR>
 
 " move tabs
 noremap <F9>  :tabm -1<CR>
@@ -242,21 +199,6 @@ nnoremap <leader>ff :call fzf#run(fzf#wrap({'options': ['--prompt', getcwd()]}))
 nnoremap <leader>fg :call fzf#run(
     \fzf#wrap({'source': 'git ls-files', 'options': ['--prompt', getcwd()]}))<CR>'
 
-" same thing, but open in a new tab
-" nnoremap <leader>tf :call fzf#run(
-"    \fzf#wrap({'sink': 'tabe', 'options': ['--prompt', getcwd()]}))<CR>'
-
-" nnoremap <leader>tg :call fzf#run(
-"    \fzf#wrap({'source': 'git ls-files', 'sink': 'tabe', 'options': ['--prompt', getcwd()]}))<CR>'
-
-" same thing, but open in a vertical split
-" nnoremap <leader>vf :call fzf#run(
-"    \fzf#wrap({'sink': 'vert new', 'options': ['--prompt', getcwd()]}))<CR>'
-
-" nnoremap <leader>vg :call fzf#run(
-"    \fzf#wrap(
-"        \{'source': 'git ls-files', 'sink': 'vert new', 'options': ['--prompt', getcwd()]}))<CR>'
-
 
 filetype plugin on
 
@@ -265,9 +207,9 @@ let g:polyglot_disabled = ['autoindent', 'csv']
 let g:perl_sub_signatures = 1
 
 " plugin manager options
-let data_dir = '~/.vim'
-if empty(glob(data_dir . '/autoload/plug.vim'))
-    silent execute '!curl -fLo'.data_dir.'/autoload/plug.vim --create-dirs '.
+let data_dir = "~/.vim/autoload/plug.vim"
+if empty(glob(data_dir))
+    silent execute '!curl -fLo '.data_dir.' --create-dirs '.
     \'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
     autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
@@ -275,14 +217,13 @@ endif
 " plugins
 call plug#begin("~/.vim/plugged")
 
-Plug 'ycm-core/YouCompleteMe'
-Plug 'mkitt/tabline.vim'
-Plug 'sheerun/vim-polyglot'
-Plug 'mhartington/oceanic-next'
-Plug 'vim-airline/vim-airline'
-Plug 'sukima/xmledit'
-Plug 'vimsence/vimsence'
-Plug 'jupyter-vim/jupyter-vim'
+Plug 'ycm-core/YouCompleteMe'   " LSP manager (Python, C, C++, Java, Rust, JS)
+Plug 'mkitt/tabline.vim'        " Tabline skin
+Plug 'sheerun/vim-polyglot'     " Rich syntax highlight
+Plug 'mhartington/oceanic-next' " Color scheme
+Plug 'vim-airline/vim-airline'  " Status bar
+Plug 'sukima/xmledit'           " Self explanatory
+Plug 'jupyter-vim/jupyter-vim'  " Connect to Jupyter console
 
 call plug#end()
 
@@ -293,15 +234,19 @@ call plug#end()
 let g:ycm_add_previw_to_completeopt = 0
 set completeopt-=preview
 
-let g:ycm_extra_conf_globlist = ['~/.ycm_extra_conf.py']
+let g:ycm_global_ycm_extra_conf = "~/.config/ycm_extra_conf.py"
 
 let g:ycm_echo_current_diagnostic = 'virtual-text'
 let g:ycm_update_diagnostics_in_insert_mode = 0
+let g:ycm_auto_hover = ''
+" let g:ycm_enable_inlay_hints = 1
+" let g:ycm_clear_inlay_hints_in_insert_mode = 1
 
-nnoremap <leader>'q <plug>(YCMHover)
+nnoremap K <plug>(YCMHover)
 nnoremap <leader>'r :YcmCompleter RefactorRename 
 nnoremap <leader>'f :YcmCompleter FixIt<CR> 
 nnoremap <leader>'p :YcmCompleter Format<CR> 
+nnoremap <leader>'o :YcmCompleter GoToDocumentOutline<CR>
 nnoremap gd :YcmCompleter GoToDeclaration<CR>
 
 let g:ycm_language_server =
@@ -346,15 +291,31 @@ colorscheme OceanicNext
 " Enable swap file warnings (what's disabling them?)
 set shortmess-=A
 
-" https://www.reddit.com/r/vim/comments/6qfhob/how_to_make_vim_follow_terminals_colorscheme/
-set termguicolors
-
-" Wrap text by default
-set nowrap
-
 " Enable font ligatures
 set guiligatures=!\"#$%&()*+-./:<=>?@[]^_{\|~
 
 " :set [option]?            ==> print current value for given option
 " :echo [var]               ==> print current value for given var
-" :verbose set [option]?    ==> print current value for given option
+" :verbose set [option]?    ==> print current value for given option and where it was defined
+
+" change viminfo default path
+set viminfo+=n~/.vim/viminfo
+
+" Only do this part when compiled with support for autocommands
+augroup myrc
+    autocmd!
+    " When editing a file, always jump to the last cursor position
+    autocmd BufReadPost *
+                \ if line("'\"") > 0 && line ("'\"") <= line("$") |
+                \   exe "normal! g'\"" |
+                \ endif
+augroup END
+
+" Convenient command to see the difference between the current buffer and the
+" file it was loaded from, thus the changes you made.
+" Only define it when not defined already.
+" Revert with: ":delcommand DiffOrig".
+command! DiffOrig vert new | set bt=nofile | r ++edit # | 0d_ | diffthis
+        \ | wincmd p | diffthis
+
+nnoremap <leader>md :DiffOrig<CR>za

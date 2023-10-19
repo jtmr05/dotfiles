@@ -41,8 +41,7 @@ bindsym $mod+d exec rofi -show drun
 bindsym $mod+Shift+d exec emoji-picker
 
 # toggle touchpad
-# TODO needs somes fixing
-bindsym $mod+F3 exec --no-startup-id my_toggle_touchpad
+bindsym $mod+F3 exec --no-startup-id my-toggle-touchpad
 
 
 ################################################################################################
@@ -53,9 +52,9 @@ bindsym $mod+F3 exec --no-startup-id my_toggle_touchpad
 # exec --no-startup-id pa-applet
 
 # adjust volume
-bindsym XF86AudioRaiseVolume exec --no-startup-id my_volume_mixer '+5'
-bindsym XF86AudioLowerVolume exec --no-startup-id my_volume_mixer '-5'
-bindsym XF86AudioMute exec --no-startup-id my_volume_mixer 'toggle'
+bindsym XF86AudioRaiseVolume exec --no-startup-id my-volume-mixer '+5'
+bindsym XF86AudioLowerVolume exec --no-startup-id my-volume-mixer '-5'
+bindsym XF86AudioMute exec --no-startup-id my-volume-mixer 'toggle'
 
 ################################################################################################
 
@@ -114,9 +113,9 @@ bindsym $mod+q split toggle; exec --no-startup-id notify-send -r 999 'tile toggl
 bindsym $mod+f fullscreen toggle
 
 # change container layout (stacked, tabbed, toggle split)
-bindsym $mod+s layout stacking
-bindsym $mod+w layout tabbed
-bindsym $mod+e layout toggle split
+# bindsym $mod+s layout stacking
+# bindsym $mod+w layout tabbed
+# bindsym $mod+e layout toggle split
 
 # toggle tiling / floating
 bindsym $mod+Shift+space floating toggle
@@ -231,14 +230,14 @@ bindsym $mod+0 mode "$mode_system"; exec --no-startup-id notify-send -r 888 'i3 
 # set $mode_system (l)ock, l(o)gout, switch_(u)ser, (s)uspend, (h)ibernate, (r)eboot, (Shift+s)hutdown
 set $mode_system (l)ock, l(o)gout, s(w)itch_user, s(u)spend, (r)eboot, (s)hutdown
 mode "$mode_system" {
-    bindsym l exec --no-startup-id my_i3exit lock, mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
-    bindsym o exec --no-startup-id my_i3exit logout, mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
-    bindsym w exec --no-startup-id my_i3exit switch_user, mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
-    bindsym u exec --no-startup-id my_i3exit suspend, mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
+    bindsym l exec --no-startup-id my-i3exit lock, mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
+    bindsym o exec --no-startup-id my-i3exit logout, mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
+    bindsym w exec --no-startup-id my-i3exit switch_user, mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
+    bindsym u exec --no-startup-id my-i3exit suspend, mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
     # disabling because it doesn't work properly
-    # bindsym h exec --no-startup-id my_i3exit hibernate, mode "default"
-    bindsym r exec --no-startup-id my_i3exit reboot, mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
-    bindsym s exec --no-startup-id my_i3exit shutdown, mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
+    # bindsym h exec --no-startup-id my-i3exit hibernate, mode "default"
+    bindsym r exec --no-startup-id my-i3exit reboot, mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
+    bindsym s exec --no-startup-id my-i3exit shutdown, mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
 
     # exit system mode: "Enter" or "Escape"
     bindsym Escape mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
@@ -275,19 +274,19 @@ bindsym $mod+F4 exec --no-startup-id nitrogen --set-zoom-fill --random
 
 # Autostart applications
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
-#exec --no-startup-id my_init_protonvpn
+#exec --no-startup-id my-init-protonvpn
 
 exec_always --no-startup-id nitrogen --restore
 #exec_always --no-startup-id nitrogen --set-zoom-fill --random
 exec --no-startup-id nm-applet
 #exec --no-startup-id clipit
 exec_always --no-startup-id fix_xcursor
-exec_always --no-startup-id my_init_picom
-exec_always --no-startup-id my_init_polybar
-exec --no-startup-id ~/.config/remaps
+exec_always --no-startup-id my-init-picom
+exec_always --no-startup-id my-init-polybar
+exec_always --no-startup-id sh ~/.config/remaps
 exec --no-startup-id xfce4-power-manager
-exec --no-startup-id xautolock -time 10 -locker my_blurlock -notify 15 -notifier 'notify-send "Screen locking soon..."'
-# exec --no-startup-id xautolock -time 1 -locker 'my_i3exit suspend' -notify 15 -notifier 'notify-send "Screen going to sleep..."'
+exec --no-startup-id xautolock -time 10 -locker my-blurlock -notify 15 -notifier 'notify-send "Screen locking soon..."'
+# exec --no-startup-id xautolock -time 1 -locker 'my-i3exit suspend' -notify 15 -notifier 'notify-send "Screen going to sleep..."'
 
 # Color palette used for the terminal ( ~/.Xresources file )
 # Colors are gathered based on the documentation:

@@ -1,5 +1,20 @@
 #!/usr/bin/env perl
 
+# Copyright (C) 2023  jtmr05
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 use v5.36;
 use autodie;
 
@@ -21,19 +36,19 @@ sub get_screen_resolution(){
 
 
 # PIPING TO PERL IN A PERL SCRIPT?? LMAOO
-use constant IMAGE_PATH                 => `mktemp --suffix=.jpeg | perl -ne 'chomp; print;'`;
-use constant ICON_PATH                  => "$ENV{HOME}/.local/share/i3lock/lock.png";
-use constant DARK_ICON_PATH             => "$ENV{HOME}/.local/share/i3lock/lockdark.png";
+use constant IMAGE_PATH               => `mktemp --suffix=.jpeg | perl -ne 'chomp; print;'`;
+use constant ICON_PATH                => "$ENV{HOME}/.local/share/i3lock/lock.png";
+use constant DARK_ICON_PATH           => "$ENV{HOME}/.local/share/i3lock/lockdark.png";
 
-use constant HEX8_MAX_VALUE             => hex 'ff';
-use constant HEX16_MAX_VALUE            => hex 'ffff';
-use constant HEX32_MAX_VALUE            => hex 'ffffffff';
-use constant HEX32_MAX_VALUE_NO_ALPHA   => hex 'ffffff00';
-use constant MIDDLE_GRAY                 => hex '7f7f7f7f';
+use constant HEX8_MAX_VALUE           => hex 'ff';
+use constant HEX16_MAX_VALUE          => hex 'ffff';
+use constant HEX32_MAX_VALUE          => hex 'ffffffff';
+use constant HEX32_MAX_VALUE_NO_ALPHA => hex 'ffffff00';
+use constant MIDDLE_GRAY              => hex '7f7f7f7f';
 
-use constant RESOLUTION                 => get_screen_resolution();
-use constant WIDTH                      => (split 'x', RESOLUTION)[0];
-use constant HEIGHT                     => (split 'x', RESOLUTION)[1];
+use constant RESOLUTION               => get_screen_resolution();
+use constant WIDTH                    => (split 'x', RESOLUTION)[0];
+use constant HEIGHT                   => (split 'x', RESOLUTION)[1];
 
 
 
@@ -170,9 +185,9 @@ sub main(){
 
     system 'i3lock -i ' . IMAGE_PATH . " -e $i3lock_params";
 
-	#unlink IMAGE_PATH;
+    #unlink IMAGE_PATH;
 }
 
 unless(caller){
-	main();
+    main();
 }

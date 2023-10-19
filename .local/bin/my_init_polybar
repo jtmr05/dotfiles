@@ -1,9 +1,0 @@
-#!/bin/sh
-
-killall -q polybar 
-
-polybar bottom 2>&1 | tee -a /tmp/polybar.log > /dev/null & disown
-
-#polybar left 2>&1 | tee -a /tmp/polybar.log > /dev/null & disown
-#polybar middle 2>&1 | tee -a /tmp/polybar.log > /dev/null & disown
-#polybar right 2>&1 | tee -a /tmp/polybar.log > /dev/null & disown

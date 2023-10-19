@@ -6,22 +6,26 @@ PATTERN = re.compile(r'\.h(pp|xx|\+\+|h)?$')
 
 def get_include_dirs(path: str) -> list[str]:
 
-    include_dirs: list[str] = []
+    try:
+        include_dirs: list[str] = []
 
-    contents: list[str] = os.listdir(path)
-    dirs:     list[str] = list(
-        filter(lambda d: d[0] != '.' and os.path.isdir(f'{path}/{d}'), contents)
-    )
+        contents: list[str] = os.listdir(path)
+        dirs:     list[str] = list(
+            filter(lambda d: d[0] != '.' and os.path.isdir(f'{path}/{d}'), contents)
+        )
 
-    if 'include' in dirs:
-        include_dirs.append(f'-I{path}/include')
+        if 'include' in dirs:
+            include_dirs.append(f'-I{path}/include')
 
-    remaining: list[str] = list(filter(lambda d: d != 'include', dirs))
+        remaining: list[str] = list(filter(lambda d: d != 'include', dirs))
 
-    for r in remaining:
-        include_dirs += get_include_dirs(f'{path}/{r}')
+        for r in remaining:
+            include_dirs += get_include_dirs(f'{path}/{r}')
 
-    return include_dirs
+        return include_dirs
+
+    except PermissionError:
+        return []
 
 
 def get_include_dirs2(path: str) -> list[str]:
@@ -56,9 +60,11 @@ def Settings(** kwargs) -> dict:
     match language:
 
         case 'cfamily':
+            inc_dirs: list[str] = get_include_dirs(os.getcwd())
+            print(inc_dirs)
             flags: list[str] = (
-                ['-Wall', '-Wextra', '-Wsign-conversion', '-pedantic-errors']
-                + get_include_dirs(os.getcwd())
+                ['-Wall', '-Wextra', '-Wsign-conversion', '-pedantic-errors'] +
+                inc_dirs
             )
 
             fn:    str = kwargs['filename']

@@ -1,37 +1,64 @@
 # files
+
 CONFIG_FILES 	:=\
-	.dir_colors\
-	.gdbinit\
-	.ghci\
-	.gitconfig\
-	.nanorc\
-	.vimrc\
-	.ycm_extra_conf.py\
-	.zsh_aliases\
-	.zshrc\
+	.config/VSCodium/User/settings.json\
+	.config/clipit\
+	.config/dir_colors\
 	.config/dunst\
 	.config/flameshot\
 	.config/fontconfig\
+	.config/gdb\
+	.config/git\
+	.config/gtk-3.0\
+	.config/gtkrc-2.0\
 	.config/htop\
 	.config/i3\
-	.config/ncspot/config.toml\
+	.config/latexmk\
+	.config/mimeapps.list\
+	.config/mpv\
+	.config/nano\
+	.config/neofetch\
 	.config/nitrogen\
+	.config/npm\
+	.config/nvim/init.lua\
+	.config/p10k.zsh\
+	.config/pavucontrol.ini\
+	.config/picom.conf\
 	.config/polybar\
+	.config/protonvpn\
 	.config/pycodestyle\
-	.config/rofi\
-	.config/zathura\
+	.config/qt5ct\
+	.config/qt6ct\
+	.config/ranger\
 	.config/remaps\
-	.config/qt5ct/qt5ct.conf\
-	.config/qt6ct/qt6ct.conf
+	.config/rofi\
+	.config/user-dirs.dirs\
+	.config/user-dirs.locale\
+	.config/vlc\
+	.config/wgetrc\
+	.config/ycm_extra_conf.py\
+	.config/zathura\
+	.config/zsh\
+	.ghci\
+	.profile\
+	.vimrc\
+	.zshrc
+
 
 SCRIPTS			:=\
-	.local/bin/my_blurlock\
-	.local/bin/my_i3exit\
-	.local/bin/my_init_picom\
-	.local/bin/my_init_polybar\
-	.local/bin/my_init_protonvpn\
-	.local/bin/my_toggle_touchpad\
-	.local/bin/my_volume_mixer
+	.local/bin/checksum\
+	.local/bin/csv2json\
+	.local/bin/ipynb2py\
+	.local/bin/my-blurlock\
+	.local/bin/my-i3exit\
+	.local/bin/my-init-picom\
+	.local/bin/my-init-polybar\
+	.local/bin/my-init-protonvpn\
+	.local/bin/my-toggle-touchpad\
+	.local/bin/my-volume-mixer\
+	.local/bin/ncspot_build\
+	.local/bin/normfn\
+	.local/bin/silent
 
 
 # make default goal (using make with no specified recipe)

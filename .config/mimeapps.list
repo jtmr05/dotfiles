@@ -1,0 +1,46 @@
+[Default Applications]
+x-scheme-handler/http=firefox.desktop
+x-scheme-handler/https=firefox.desktop
+x-scheme-handler/ftp=userapp-Pale Moon.desktop
+x-scheme-handler/chrome=firefox.desktop
+text/html=firefox.desktop
+application/x-extension-htm=firefox.desktop
+application/x-extension-html=firefox.desktop
+application/x-extension-shtml=firefox.desktop
+application/xhtml+xml=firefox.desktop
+application/x-extension-xhtml=firefox.desktop
+application/x-extension-xht=firefox.desktop
+image/jpeg=viewnior.desktop;gpicview.desktop;
+image/png=viewnior.desktop;gpicview.desktop;
+text/plain=vim.desktop
+x-scheme-handler/mailto=userapp-Thunderbird.desktop
+message/rfc822=userapp-Thunderbird.desktop
+application/pdf=org.pwmt.zathura.desktop
+inode/directory=pcmanfm.desktop
+application/x-bittorrent=deluge.desktop
+x-scheme-handler/discord-733576109744062537=discord-733576109744062537.desktop
+video/mp4=vlc.desktop
+image/x-portable-pixmap=viewnior.desktop
+text/markdown=vim.desktop
+
+[Added Associations]
+x-scheme-handler/http=userapp-Pale Moon.desktop;firefox.desktop;
+inode/directory=pcmanfm-desktop-pref.desktop
+x-scheme-handler/https=userapp-Pale Moon.desktop;firefox.desktop;
+x-scheme-handler/ftp=userapp-Pale Moon.desktop;
+x-scheme-handler/chrome=userapp-Pale Moon.desktop;firefox.desktop;
+text/html=vim.desktop;userapp-Pale Moon.desktop;firefox.desktop;
+application/x-extension-htm=userapp-Pale Moon.desktop;firefox.desktop;
+application/x-extension-html=userapp-Pale Moon.desktop;firefox.desktop;
+application/x-extension-shtml=userapp-Pale Moon.desktop;firefox.desktop;
+application/xhtml+xml=userapp-Pale Moon.desktop;firefox.desktop;
+application/x-extension-xhtml=userapp-Pale Moon.desktop;firefox.desktop;
+application/x-extension-xht=userapp-Pale Moon.desktop;firefox.desktop;
+image/jpeg=viewnior.desktop;gpicview.desktop;
+image/png=viewnior.desktop;gpicview.desktop;
+text/plain=vim.desktop;
+x-scheme-handler/mailto=userapp-Thunderbird.desktop;
+message/rfc822=userapp-Thunderbird.desktop;
+application/pdf=firefox.desktop;
+application/x-bittorrent=deluge.desktop;
+application/x-tgif=gvim.desktop;

@@ -1,0 +1,11 @@
+{
+    "workbench.colorTheme": "Mariana Pro (Cool)",
+    "editor.fontFamily": "'fira code'",
+    "editor.fontLigatures": true,
+    "editor.fontSize": 16,
+    "editor.bracketPairColorization.enabled": false,
+    "notebook.lineNumbers": "on",
+    "editor.lineNumbers": "relative",
+    "workbench.startupEditor": "none",
+    "explorer.confirmDelete": false
+}

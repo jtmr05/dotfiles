@@ -1,0 +1,42 @@
+#!/bin/sh
+
+# Copyright (C) 2023  jtmr05
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+prog=silent
+
+if [ $# -eq 0 ]; then
+    echo "$prog: missing operand"
+    echo "Try '$prog --help' for more information"
+    exit 1
+fi
+
+
+cmd=""
+
+for arg in $@; do
+    if [ $arg == '-h' ] || [ $arg == '--help' ]; then
+        echo "Usage: $prog PROG [ARGS]..."
+        echo -e "Silently execute PROG with arguments ARGS\n"
+        echo "Available options: "
+        echo -e "  -h, --help      print this message and exit"
+        exit 0
+    else
+        cmd="$cmd $arg"
+    fi
+done
+
+cmd="$cmd &> /dev/null &"
+sh -c "$cmd"

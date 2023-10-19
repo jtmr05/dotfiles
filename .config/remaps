@@ -3,8 +3,16 @@
 # Increase repeat rate
 xset r rate 300 50
 
-# Change N tilde key
-xmodmap -e 'keycode 47 = 0xfe53 0x007e'
+LAYOUT=$(\
+    setxkbmap -query |\
+    perl -F/:/ -lane 'print ($F[1] =~ s/^\s+|\s+$//gmr) if($F[0] eq "layout")'
+)
+if [ $LAYOUT = 'es' ]
+then
+    # Change N tilde key on Spanish keyboards
+    xmodmap -e 'keycode 47 = 0xfe53 0x007e'
+fi
 
 # Do not disable mouse while typing (not really a remap...)
-xinput set-prop 12 375 0
+TOUCHPAD_ID=$(xinput list | perl -ne 'do {print $1; exit 0} if(m/Touchpad\s+id=(\d+)/)')
+xinput set-prop $TOUCHPAD_ID 375 0

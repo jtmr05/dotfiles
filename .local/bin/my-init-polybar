@@ -1,0 +1,24 @@
+#!/bin/sh
+
+# Copyright (C) 2023  jtmr05
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+killall -q polybar
+
+polybar bottom 2>&1 | tee /tmp/polybar.log > /dev/null & disown
+
+#polybar left 2>&1 | tee -a /tmp/polybar.log > /dev/null & disown
+#polybar middle 2>&1 | tee -a /tmp/polybar.log > /dev/null & disown
+#polybar right 2>&1 | tee -a /tmp/polybar.log > /dev/null & disown

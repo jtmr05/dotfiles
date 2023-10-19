@@ -1,7 +1,0 @@
-#!/bin/sh
-
-killall -q picom 
-
-sleep 0.25
-
-picom --config ~/.config/picom.conf & disown

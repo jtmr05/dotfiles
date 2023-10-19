@@ -1,0 +1,183 @@
+#!/usr/bin/env perl
+
+# Copyright (C) 2023  jtmr05
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+use v5.36;
+use JSON;
+use autodie;
+
+use constant DEFAULT_SEP => ';';
+use constant ARGV0 => 'csv2json';
+
+sub print_help(){
+    say "usage: $0 [OPTION]... FILE\n"
+    . "Convert CSV files to JSON.\n\n"
+    . "available options:\n"
+    . "  -c, --col C\t\twrap entries in a collection C\n"
+    . "  -s, --sep S\t\tuse S as field separator (default: '" . DEFAULT_SEP . "')\n"
+    . "      --help\t\tprint this message and exit";
+}
+
+sub get_out_path($in_path){
+
+    unless($in_path =~ m/^(.+?)(\..+)?$/){
+        return undef;
+    }
+
+    my $pad = 1;
+    my $out_path = "$1.json";
+
+    while(-f $out_path){
+        ++$pad;
+        $out_path = "$1${pad}.json";
+    }
+
+    return $out_path;
+}
+
+sub parse_args(){
+
+    my %options = (
+        'sep' => DEFAULT_SEP,
+        'col' => undef,
+        'in_path' => undef,
+        'out_path' => undef
+    );
+
+    my $argc = 0;
+    while($argc <= $#ARGV){
+
+        if($ARGV[$argc] =~ m/^-s|--sep$/){
+            ++$argc;
+            unless($argc <= $#ARGV){
+                say STDERR "$0: option '$&' requires argument";
+                exit 1;
+            }
+            $options{'sep'} = $ARGV[$argc];
+            ++$argc;
+        }
+
+        elsif($ARGV[$argc] =~ m/^-c|--col$/){
+            ++$argc;
+            unless($argc <= $#ARGV){
+                say STDERR "$0: option '$&' requires argument";
+                exit 1;
+            }
+            $options{'col'} = $ARGV[$argc];
+            ++$argc;
+        }
+
+        elsif($ARGV[$argc] =~ m/^--help$/){
+            print_help();
+            exit 0;
+        }
+
+        else {
+
+            if(defined $options{'in_path'}){
+                say STDERR "$0: too many arguments provided";
+                exit 1;
+            }
+
+            my $out_path = get_out_path($ARGV[$argc]);
+            unless($out_path){
+                say STDERR "$0: invalid filename $ARGV[$argc]";
+                exit 1;
+            }
+
+            $options{'in_path'} = $ARGV[$argc];
+            $options{'out_path'} = $out_path;
+            ++$argc;
+        }
+    }
+
+    unless($options{'in_path'}){
+        say STDERR "$0: missing file operand\n"
+        . "Try '$0 --help' for more information.";
+        exit 1;
+    }
+
+    return \%options;
+}
+
+
+sub main(){
+
+    binmode STDOUT, ':utf8';
+    binmode STDERR, ':utf8';
+
+    $0 = ARGV0; #if($0 =~ m|^/((.+?)/)*(.+?)$|){
+
+    my %options = %{parse_args()};
+    my $in_path = $options{'in_path'};
+    my $out_path = $options{'out_path'};
+    my $sep = $options{'sep'};
+    my $col_name = $options{'col'};
+
+    my $split_pattern = qr/^(".*?(?<!\\)"|[^"]*?)${sep}(.*)$/;
+    open my $ifh, '<:utf8', $in_path;
+
+    my $header = <$ifh>;
+    my @keys = ();
+    while($header =~ $split_pattern){
+        push @keys, $1;
+        $header = $2;
+    }
+    push @keys, $header;
+
+    my @collection = ();
+
+    foreach(<$ifh>){
+
+        my @values = ();
+        while($_ =~ $split_pattern){
+            push @values, $1;
+            $_ = $2;
+        }
+        push @values, $_;
+
+        my $entry = {};
+
+        if($#values != $#keys){
+            chomp $_;
+            warn "$0: '$_' is an invalid entry";
+            next;
+        }
+
+        foreach my $i (0..$#keys){
+            $values[$i] =~ s/^\s*(.*?)\s*$/$1/;
+            ${$entry}{$keys[$i]} = $values[$i];
+        }
+
+        push @collection, $entry;
+    }
+
+    my $json_obj = JSON->new()->utf8(1);
+    open my $ofh, '>', $out_path;
+
+    if(defined $col_name){
+        my %json_hash = ($col_name => \@collection);
+        print $ofh $json_obj->pretty(1)->encode(\%json_hash);
+    }
+    else {
+        print $ofh $json_obj->pretty(1)->encode(\@collection);
+    }
+
+
+    return 0;
+}
+
+exit main() unless(caller);
