@@ -43,7 +43,7 @@ sub get_output_filename($input_filename){
 		my $suffix_id = 2;
 		my $extension = '.py';
 
-		while(-f "$1$extension"){
+		while(-e "$1$extension"){
 			$extension = "$suffix_id.py";
 			++$suffix_id;
 		}

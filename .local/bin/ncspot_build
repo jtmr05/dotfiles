@@ -55,7 +55,7 @@ build(){
     cargo build --release
 
     # -- create symlink
-    ln -sf -T $(realpath target/release/ncspot) $LINK_TARGET
+    ln -sf "$(realpath target/release/ncspot)" $LINK_TARGET
 }
 
 clean(){
@@ -75,11 +75,11 @@ if [ $# -ne 1 ]; then
     echo "$SCRIPT_NAME: missing operand"                 > /dev/stderr
     echo "Try '$SCRIPT_NAME help' for more information." > /dev/stderr
     exit 1
-elif [ $1 = 'build' ]; then
+elif [ "$1" = 'build' ]; then
     build
-elif [ $1 = 'clean' ]; then
+elif [ "$1" = 'clean' ]; then
     clean
-elif [ $1 = 'help' ]; then
+elif [ "$1" = 'help' ]; then
     usage
 else
     echo "$SCRIPT_NAME: $1: unknown option"              > /dev/stderr

@@ -34,6 +34,7 @@ CONFIG_FILES 	:=\
 	.config/rofi\
 	.config/user-dirs.dirs\
 	.config/user-dirs.locale\
+	.config/vim/vimrc\
 	.config/vlc\
 	.config/wgetrc\
 	.config/ycm_extra_conf.py\
@@ -41,11 +42,11 @@ CONFIG_FILES 	:=\
 	.config/zsh\
 	.ghci\
 	.profile\
-	.vimrc\
 	.zshrc
 
 
 SCRIPTS			:=\
+	.local/bin/cell2script\
 	.local/bin/checksum\
 	.local/bin/csv2json\
 	.local/bin/ipynb2py\

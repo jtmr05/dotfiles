@@ -20,7 +20,7 @@ export LESSHISTFILE=/dev/null
 export LESSOPEN='| /usr/bin/src-hilite-lesspipe.sh %s'
 export LESS=' -R '
 # https://unix.stackexchange.com/questions/119/colors-in-man-pages/147#147
-export GROFF_NO_SGR=1 
+export GROFF_NO_SGR=1
 
 
 # sanity
@@ -44,3 +44,6 @@ export STACK_XDG=1
 export W3M_DIR="$XDG_STATE_HOME/w3m"
 export WGETRC="$XDG_CONFIG_HOME/wgetrc"
 export WINEPREFIX="$XDG_DATA_HOME/wineprefixes/default"
+
+# (Neo)Vim init
+export VIMINIT='let $MYVIMRC = !has("nvim") ? "$XDG_CONFIG_HOME/vim/vimrc" : "$XDG_CONFIG_HOME/nvim/init.lua" | so $MYVIMRC'

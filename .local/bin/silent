@@ -15,28 +15,33 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-prog=silent
+SCRIPT_NAME=silent
+
+usage(){
+    echo "Usage: $SCRIPT_NAME PROG [ARGS]..."
+    echo "Silently execute PROG with arguments ARGS"
+    echo ""
+    echo "Available options: "
+    echo  "  -h, --help      print this message and exit"
+}
 
 if [ $# -eq 0 ]; then
-    echo "$prog: missing operand"
-    echo "Try '$prog --help' for more information"
+    echo "$SCRIPT_NAME: missing operand"                  > /dev/stderr
+    echo "Try '$SCRIPT_NAME --help' for more information" > /dev/stderr
     exit 1
 fi
 
 
 cmd=""
 
-for arg in $@; do
-    if [ $arg == '-h' ] || [ $arg == '--help' ]; then
-        echo "Usage: $prog PROG [ARGS]..."
-        echo -e "Silently execute PROG with arguments ARGS\n"
-        echo "Available options: "
-        echo -e "  -h, --help      print this message and exit"
+for arg in "$@"; do
+    if [ "$arg" = '-h' ] || [ "$arg" = '--help' ]; then
         exit 0
     else
         cmd="$cmd $arg"
     fi
 done
 
-cmd="$cmd &> /dev/null &"
-sh -c "$cmd"
+sh -c "$cmd > /dev/null 2> /dev/null &"
+
+# TODO port to perl (shell sucks!)

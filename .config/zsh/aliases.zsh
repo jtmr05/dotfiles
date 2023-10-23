@@ -66,7 +66,7 @@ alias :a="vim $XDG_CONFIG_HOME/zsh/aliases.zsh"
 alias :q='exit'
 
 # vim aliases
-alias :vrc="vim $HOME/.vimrc"
+alias :vrc="vim $HOME/.config/vim/vimrc"
 alias v='vim'
 
 

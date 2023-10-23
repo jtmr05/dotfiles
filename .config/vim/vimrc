@@ -1,3 +1,23 @@
+" Arch wiki
+set runtimepath^=$XDG_CONFIG_HOME/vim
+set runtimepath+=$XDG_DATA_HOME/vim
+set runtimepath+=$XDG_CONFIG_HOME/vim/after
+
+set packpath^=$XDG_DATA_HOME/vim,$XDG_CONFIG_HOME/vim
+set packpath+=$XDG_CONFIG_HOME/vim/after,$XDG_DATA_HOME/vim/after
+
+let g:netrw_home = $XDG_DATA_HOME."/vim"
+call mkdir($XDG_DATA_HOME."/vim/spell", 'p')
+
+set backupdir=$XDG_STATE_HOME/vim/backup | call mkdir(&backupdir, 'p')
+set directory=$XDG_STATE_HOME/vim/swap   | call mkdir(&directory, 'p')
+set undodir=$XDG_STATE_HOME/vim/undo     | call mkdir(&undodir,   'p')
+set viewdir=$XDG_STATE_HOME/vim/view     | call mkdir(&viewdir,   'p')
+set viminfofile=$XDG_STATE_HOME/vim/viminfo
+let plugin_data_dir=$XDG_DATA_HOME."/vim/autoload/plug.vim"
+let plugin_install_dir=$XDG_DATA_HOME."/vim/plugged"
+
+
 " set leader key to spacebar
 let g:mapleader = ' '
 
@@ -14,7 +34,6 @@ let &t_te.="\e[0 q"
 " enable syntax highlighting
 syntax on
 
-
 " Use Vim settings, rather than Vi settings (much better!).
 " This must be first, because it changes other options as a side effect.
 " Avoid side effects when it was already reset.
@@ -25,14 +44,15 @@ endif
 " Allow backspacing over everything in insert mode.
 set backspace=indent,eol,start
 
-set ai               " always set autoindenting on
-set si               " smart indent
-set viminfo='20,\"50 " read/write a .viminfo file, don't store more than 50 lines of registers
-set history=50       " keep 50 lines of command line history
-set ruler            " show the cursor position all the time
-set showcmd          " display incomplete commands
-set wildmenu         " display completion matches in a status line
-set ttimeoutlen=100  " key delay
+set ai                       " always set autoindenting on
+set si                       " smart indent
+set viminfo='20,\"50         " read/write a .viminfo file, don't store more than 50 lines of registers
+" set viminfo+=n~/.vim/viminfo " change viminfo default path
+set history=50               " keep 50 lines of command line history
+set ruler                    " show the cursor position all the time
+set showcmd                  " display incomplete commands
+set wildmenu                 " display completion matches in a status line
+set ttimeoutlen=100          " key delay
 
 " Show @@@ in the last line if it is truncated.
 set display=truncate
@@ -77,10 +97,6 @@ noremap <right> <nop>
 
 " back to file explorer
 nnoremap <leader>pv :Explore<CR>
-
-" disable K and Q (both evil)
-noremap K <nop>
-noremap Q <nop>
 
 " 'enhanced command mode'
 noremap Q q:
@@ -216,15 +232,15 @@ let g:polyglot_disabled = ['autoindent', 'csv', 'sensible']
 let g:perl_sub_signatures = 1
 
 " plugin manager options
-let data_dir = "~/.vim/autoload/plug.vim"
-if empty(glob(data_dir))
-    silent execute '!curl -fLo '.data_dir.' --create-dirs '.
+
+if empty(glob(plugin_data_dir))
+    silent execute '!curl -fLo '.plugin_data_dir.' --create-dirs '.
     \'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
     autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
 " plugins
-call plug#begin("~/.vim/plugged")
+call plug#begin(plugin_install_dir)
 
 Plug 'ycm-core/YouCompleteMe'   " LSP manager (Python, C, C++, Java, Rust, JS)
 Plug 'mkitt/tabline.vim'        " Tabline skin
@@ -293,9 +309,6 @@ colorscheme OceanicNext
 
 " Enable font ligatures
 set guiligatures=!\"#$%&()*+-./:<=>?@[]^_{\|~
-
-" change viminfo default path
-set viminfo+=n~/.vim/viminfo
 
 " reload file on the fly if changed elsewhere
 set autoread

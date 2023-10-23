@@ -72,7 +72,7 @@ sub main(){
 	}
 
 
-	my $volume = `pamixer --get-volume`; chomp $volume;
+	my $volume = substr `pamixer --get-volume`, 0, -1;
 	my $is_muted = `pamixer --get-volume-human` eq "muted\n";
 
 	my $icon = MEDIUM_VOLUME_ICON;

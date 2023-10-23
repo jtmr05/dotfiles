@@ -17,44 +17,28 @@
 
 use v5.36;
 
-sub read_yes(){
-    while(1){
-        my $input = <STDIN>;
-
-        if($input =~ m/^(y(es)?)?$/i){
-            @files = split "\n", `ls -1 -A`;
-            last;
-        }
-        elsif($input =~ m/^no?$/i){
-            return 1;
-        }
-        else {
-            print 'Please enter yes or no. [Y/n] ';
-        }
-    }
-}
+my $PROG_NAME = 'normfn';
 
 sub main(){
 
     my @files = @ARGV;
 
-    unless(scalar @files > 0){
-        print STDERR 'Performing name normalization for all files in this directory. '
-            . 'Continue? [Y/n] ';
-
-        read_yes();
+    if(scalar @files == 0){
+        say STDERR "usage: $PROG_NAME FILE...";
+        say STDERR "Rename files by replacing special characters with underscores.";
+        return 1;
     }
 
-    foreach(@files){
+    foreach my $old_name (@files){
 
-        my $old_name = $_;
+        my $new_name = $old_name;
 
-        s|[-_/<>\|:&();,"']| |g;
-        s/^\s+|\s+$//g;
-        s/\s+/_/g;
+        $new_name =~ s|[-_<>\|:&();,"']| |g;
+        $new_name =~ s/^\s+|\s+$//g;
+        $new_name =~ s/\s+/_/g;
 
-        if($old_name ne $_){
-            system "mv '$old_name' $_";
+        if($old_name ne $new_name){
+            system "mv '$old_name' $new_name";
         }
     }
 

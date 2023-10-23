@@ -1,0 +1,115 @@
+#!/bin/sh
+
+# Copyright (C) 2023  jtmr05
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+SCRIPT_NAME=cell2script
+
+usage(){
+    echo "Usage: $SCRIPT_NAME [OPTION] [--] FILE..."
+    echo "Convert Jupyter Notebook cell-style scripts to regular scripts"
+    echo ""
+    echo "Available options:"
+    echo "  -f    override existing output files"
+    echo "  -h    print this message and exit"
+    echo ""
+    echo "If '--' is passed in, all following arguments are interpreted as file names"
+}
+
+max(){
+    [ "$1" -gt "$2" ] && return "$1"
+    return "$2"
+}
+
+if [ $# -eq 0 ]; then
+    echo "$SCRIPT_NAME: missing operand"               > /dev/stderr
+    echo "Try '$SCRIPT_NAME -h' for more information." > /dev/stderr
+    exit 1
+fi
+
+force=0
+input_files=""
+has_sep=0
+
+for arg in "$@"; do
+
+    if [ $has_sep -eq 0 ]; then
+        case $arg in
+            '-f')
+                force=1
+                continue
+                ;;
+            '-h')
+                usage
+                exit 0
+                ;;
+            '--')
+                has_sep=1
+                continue
+                ;;
+            *)
+                ;;
+        esac
+    fi
+
+    input_files="$input_files
+        $arg"
+done
+
+input_files=$(perl -e '$_ = shift; s/^\s+//mg; print' "$input_files")
+
+IFS='
+'
+exit_code=0
+for f in $input_files; do
+
+    new_fn=$(perl -E '
+
+        $base = q{};
+        $ext = q{.py};
+        $count = 1;
+
+        if($ARGV[0] =~ m/^(.+)(\..+)$/){
+            $base = $1;
+            $ext = $2;
+        }
+        else {
+            $base = shift;
+        }
+
+        print qq{${base}_script$ext};' "$f"
+    )
+
+    if ! [ -e "$f" ]; then
+        echo "$SCRIPT_NAME: $f: no such file or directory" > /dev/stderr
+        max "$exit_code" 2
+        exit_code=$?
+        continue
+    fi
+
+    if [ "$force" -eq 0 ] && [ -e "$new_fn" ]; then
+        echo "$SCRIPT_NAME: $new_fn: file exists"          > /dev/stderr
+        max "$exit_code" 3
+        exit_code=$?
+        continue
+    fi
+
+    echo '#!/usr/bin/env python3' > "$new_fn"
+    perl -pe 's/^## (BEGIN|END).*$//' "$f" >> "$new_fn"
+    autopep8 -i "$new_fn"
+    chmod +x "$new_fn"
+done
+
+exit "$exit_code"
