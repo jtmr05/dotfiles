@@ -1,4 +1,6 @@
-" Arch wiki
+" ==============================================================================
+" XDG base directory specification workaround (source: Arch wiki)
+
 set runtimepath^=$XDG_CONFIG_HOME/vim
 set runtimepath+=$XDG_DATA_HOME/vim
 set runtimepath+=$XDG_CONFIG_HOME/vim/after
@@ -6,157 +8,232 @@ set runtimepath+=$XDG_CONFIG_HOME/vim/after
 set packpath^=$XDG_DATA_HOME/vim,$XDG_CONFIG_HOME/vim
 set packpath+=$XDG_CONFIG_HOME/vim/after,$XDG_DATA_HOME/vim/after
 
-let g:netrw_home = $XDG_DATA_HOME."/vim"
-call mkdir($XDG_DATA_HOME."/vim/spell", 'p')
+let g:netrw_home = $XDG_DATA_HOME . "/vim"
+call mkdir($XDG_DATA_HOME . "/vim/spell", 'p')
 
 set backupdir=$XDG_STATE_HOME/vim/backup | call mkdir(&backupdir, 'p')
 set directory=$XDG_STATE_HOME/vim/swap   | call mkdir(&directory, 'p')
 set undodir=$XDG_STATE_HOME/vim/undo     | call mkdir(&undodir,   'p')
 set viewdir=$XDG_STATE_HOME/vim/view     | call mkdir(&viewdir,   'p')
 set viminfofile=$XDG_STATE_HOME/vim/viminfo
-let plugin_data_dir=$XDG_DATA_HOME."/vim/autoload/plug.vim"
-let plugin_install_dir=$XDG_DATA_HOME."/vim/plugged"
 
+" ==============================================================================
+
+
+
+" ==============================================================================
+" Options and general variables
+
+" use vim settings, rather than vi settings
+" guard it in if-clause in order to avoid side effects
+if &compatible
+    set nocompatible
+endif
 
 " set leader key to spacebar
 let g:mapleader = ' '
+let g:maplocalleader = ' '
 
-" comment strings and numbers in C comments
+" highlight strings and numbers in C comments
 let g:c_comment_strings=1
 
-" block cursor
+" block cursor when vim starts
 let &t_ti.="\e[1 q"
+" reset on exit
+let &t_te.="\e[5 q"
+" ibeam in insert mode
 let &t_SI.="\e[5 q"
 let &t_EI.="\e[1 q"
-let &t_te.="\e[0 q"
-
+" underline in replace mode
+let &t_SR.="\e[4 q"
+let &t_ER.="\e[1 q"
+" enable squiggly underlines in errors.
+"let &t_Cs="\e[4:3m"
+"let &t_Ce="\e[4:0m"
 
 " enable syntax highlighting
+syntax enable
 syntax on
 
-" Use Vim settings, rather than Vi settings (much better!).
-" This must be first, because it changes other options as a side effect.
-" Avoid side effects when it was already reset.
-if &compatible
-  set nocompatible
-endif
+" autodetect filetype
+" load plugin files accordingly
+filetype plugin on
 
-" Allow backspacing over everything in insert mode.
+" allow backspacing over everything in insert mode
 set backspace=indent,eol,start
 
-set ai                       " always set autoindenting on
-set si                       " smart indent
-set viminfo='20,\"50         " read/write a .viminfo file, don't store more than 50 lines of registers
-" set viminfo+=n~/.vim/viminfo " change viminfo default path
-set history=50               " keep 50 lines of command line history
-set ruler                    " show the cursor position all the time
-set showcmd                  " display incomplete commands
-set wildmenu                 " display completion matches in a status line
-set ttimeoutlen=100          " key delay
+" follow indent from previous line
+set autoindent
 
-" Show @@@ in the last line if it is truncated.
-set display=truncate
+" store 5000 lines of command history
+set history=5000
+"
+" cursor position and (partial) command in the lower right corner
+set ruler
+set showcmd
 
-" Show a few lines of context around the cursor.  Note that this makes the
-" text scroll if you mouse-click near the start or end of the window.
+" tab completion menu in command mode
+" show completions in a popup menu
+set wildmenu
+set wildoptions=pum,fuzzy
+
+" store marks of the last 100 edited files (max)
+" store up to 50 lines per register
+" don't store search history
+set viminfo='100,<50,/0
+
+" show @@@ at the end of the last line if it is truncated
+set display=lastline
+
+" show a few lines of context around the cursor
 set scrolloff=3
 
-" Do not recognize octal numbers for Ctrl-A and Ctrl-X, most users find it
-" confusing.
+" do not recognize octal numbers for Ctrl-A and Ctrl-X
 set nrformats-=octal
+
+" efficient screen redrawing (useful for heavyweight macros)
+set lazyredraw
 
 " window split options
 set splitright
 set splitbelow
 
 " relative line numbers
-set nu
-set rnu
+set number
+set relativenumber
 
-" search options ('/' and '?')
+" incremental search, no highlighting
+" ignore case except if search term contains upper case letters
 set incsearch
 set nohlsearch
 set ignorecase
 set smartcase
 
-" max number of tabs
-set tabpagemax=100
-
-" Do not wrap text by default
+" do not wrap text by default
 set nowrap
 
+" preserve indentation for wrapped text
+set breakindent
+
+" save undo history
+set undofile
+
+" do not treat [\.?!] specially in join operations
+set nojoinspaces
+
+" disable timeout for mappings without disrupting Esc key
+set ttimeoutlen=100
+set ttimeout
+set notimeout
+
 " https://www.reddit.com/r/vim/comments/6qfhob/how_to_make_vim_follow_terminals_colorscheme/
+" follow terminal's colorscheme
 set termguicolors
 
+" vertical guideline
+set colorcolumn=100
+
+" indentation settings
+set expandtab
+set softtabstop=-1
+set shiftwidth=4
+set tabstop=4
+
+" enable mouse in all modes
+set mouse=a
+
+" change buffer in current window with unsaved changes
+set hidden
+
+" reload file on the fly if changed elsewhere
+set autoread
+
+" shortmess options
+set shortmess=filnxtToOSc
+
+" show non-visible characters (source: https://github.com/tpope/vim-sensible/)
+set list
+set listchars=tab:>\ ,trail:-,extends:>,precedes:<,nbsp:+
+
+" delete comment character when joining commented lines
+" (source: https://github.com/tpope/vim-sensible/)
+set formatoptions+=j
+
+" remove preview window from completion options
+set completeopt-=preview
+
+" ==============================================================================
+
+
+
+" ==============================================================================
+" Remaps
 
 " chad mode enabled
-noremap <up> <nop>
-noremap <left> <nop>
-noremap <down> <nop>
+noremap <up>    <nop>
+noremap <left>  <nop>
+noremap <down>  <nop>
 noremap <right> <nop>
-
-" back to file explorer
-nnoremap <leader>pv :Explore<CR>
 
 " 'enhanced command mode'
 noremap Q q:
 
-" J at the beginning of the line
+" J stays at the beginning of the line
 noremap J mjJ'j
 
 " move selected lines when in visual mode (countable!!!)
-vnoremap <expr> <C-J> ":m .+" . v:count1 . "<CR>gv=gv"
-vnoremap <expr> <C-K> ":m .-" . (v:count1 + 1) . "<CR>gv=gv"
+vnoremap <expr> <C-J> ":move '>+" . v:count1       . "<CR>gv=gv"
+vnoremap <expr> <C-K> ":move '<-" . (v:count1 + 1) . "<CR>gv=gv"
 
 " Perl substitution
-noremap S :perldo s//g<left><left>
+nnoremap S :%!perl -pe 's//g'<left><left><left>
+vnoremap S :!perl -pe 's//g'<left><left><left>
 
-" capital y with d-like behavior
+" make Y akin to D and C
 noremap Y y$
 
 " yank to system clipboard
 noremap <leader>y "+y
-nnoremap <leader>Y "+Y
+nmap    <leader>Y "+Y
+
+" paste from system clipboard
+noremap <leader>p "+p
+noremap <leader>P "+P
 
 " change to void
-noremap <leader>c "_c
+noremap  <leader>c "_c
 nnoremap <leader>C "_C
 
 " delete to void
 noremap <leader>d "_d
 nnoremap <leader>D "_D
 
-" greatest remap ever (FIXME)
-vnoremap <leader>p "_dP
-
-" scroll and center
-" nnoremap <C-D> <C-D>zz
-" nnoremap <C-U> <C-U>zz
-
 " seach and center cursor
 noremap n nzz
 noremap N Nzz
 
-" quick spell suggestion
-noremap zq 1z=
-inoremap <C-L> <Esc>[s1z=`]a
+" square brackets text object
+vnoremap aq a[
+vnoremap iq i[
+onoremap aq a[
+onoremap iq i[
 
-" comment lines
-" TODO autocmd to switch between terminators
-nnoremap çç mpI//<Esc>mp
-nnoremap Ç mpi//<Esc>mp
-vnoremap ç mp<Esc>`>a*/<Esc>`<i/*<Esc>mp
+" curly braces text object
+vnoremap ac a{
+vnoremap ic i{
+onoremap ac a{
+onoremap ic i{
 
 " make current file executable
 nnoremap <silent> <leader>x :!chmod +x %<CR><CR>
 
-" move between buffers
+" move between windows
 nnoremap <C-J> <C-W><C-J>
 nnoremap <C-K> <C-W><C-K>
 nnoremap <C-L> <C-W><C-L>
 nnoremap <C-H> <C-W><C-H>
 
-" move buffers
+" move windows
 nnoremap <leader>j <C-W>J
 nnoremap <leader>k <C-W>K
 nnoremap <leader>l <C-W>L
@@ -165,164 +242,333 @@ nnoremap <leader>h <C-W>H
 " CRLF to LF
 noremap <leader>ml :e ++ff=unix<CR>:perldo s/\r//g<CR>
 
-" Convenient command to see the difference between the current buffer and the
-" file it was loaded from, thus the changes you made.
-" Only define it when not defined already.
-" Revert with: ":delcommand DiffOrig".
-command! DiffOrig vert new | set bt=nofile | r ++edit # | 0d_ | diffthis
-        \ | wincmd p | diffthis
+" see the difference between the current buffer and the file it was loaded from
+command! DiffOrig
+ \  let buff_name=expand('#')
+ \| vert new
+ \| set bt=nofile
+ \| execute "r" "++edit" buff_name
+ \| 0d_
+ \| diffthis
+ \| wincmd p
+ \| diffthis
 nnoremap <leader>md :DiffOrig<CR>za
 
+" file explorer
+nnoremap <leader>mf :Explore<CR>
+
 " delete trailing white space
-command! Trim :perldo s/\s+$//gm
-noremap <leader>mt :Trim<CR>
+noremap <leader>mt :perldo s/\s+$//gm<CR>
 
-" convert tabs to spaces (needs some fixing)
-command! TabsToSpaces :perldo s/\t/    /gm
-noremap <leader>ms :TabsToSpaces<CR>
+" convert tabs to spaces (needs some fixing) FIXME
+noremap <leader>ms :perldo s/\t/    /gm<CR>
 
-" vertical guideline
-set colorcolumn=100
-
-" indentation settings
-autocmd FileType xml  setlocal shiftwidth=2
-autocmd FileType html setlocal shiftwidth=2
-autocmd FileType pug  setlocal shiftwidth=2
-set expandtab
-set softtabstop=4
-set shiftwidth=4
-" set tabstop=4
-" filetype plugin indent on
-
-" use mouse for scrolling
-set mouse=a
+" toggle wrap
+noremap <leader>mc :setlocal spell!<CR>
 
 " toggle wrap
 noremap <leader>mw :set wrap!<CR>
 
-" move tabs
-noremap <F9>  :tabm -1<CR>
-noremap <F10> :tabm +1<CR>
-
 " new tab
-nnoremap <leader>tn :tabnew<CR>
+nnoremap <leader>nt :tabnew<CR>
 
 " new vsplit
-nnoremap <leader>vn :vert new<CR>
+nnoremap <leader>nv :vert new<CR>
 
-" new vsplit
-nnoremap <leader>w :w<CR>
+" new buffer (occupies current window)
+nnoremap <leader>nn :enew<CR>
+
+" delete buffer
+nnoremap <leader>nd :bd<CR>
+
+" change to buffer (fuzzy find)
+nnoremap <expr> gb ':ls<CR>:b<Space><Tab>'
+
+" move between buffers
+nnoremap H :bnext<CR>
+nnoremap L :bprev<CR>
+
+" correct spelling mistakes only if spell checking is on
+noremap  <expr> zq    &l:spell==1 ? '1z='           : ''
+inoremap <expr> <C-L> &l:spell==1 ? '<Esc>[s1z=`]a' : '<C-L>'
+
+" enter to select in wildmenu
+cnoremap <expr> <CR> wildmenumode() ? '<C-Y>' : '<CR>'
+
+function! Align(substr)
+
+    let begin_line_num = getpos("'<")[1]
+    let end_line_num   = getpos("'>")[1]
+    let curr_pos       = getpos('.')[1:2]
+
+    let line_num    = begin_line_num
+    let max_col     = -1
+    let substr_cols = []
+    while line_num <= end_line_num
+        let line     = getline(line_num)
+        let curr_col = stridx(line, a:substr) + 1
+        call add(substr_cols, curr_col)
+        let max_col = max([curr_col, max_col])
+        let line_num += 1
+    endwhile
+
+    " let max_col = max(substr_cols)
+    if max_col == -1
+        return 0
+    endif
+
+    let line_num = begin_line_num
+    while line_num <= end_line_num
+        let curr_col = substr_cols[line_num - begin_line_num]
+        if curr_col > 0
+            call cursor(line_num, curr_col)
+            let pad_length = max_col - curr_col
+            execute 'normal i' . repeat(' ', pad_length) . "\<Esc>"
+        endif
+        let line_num += 1
+    endwhile
+
+    call cursor(curr_pos[0], curr_pos[1])
+    return 1
+endfunction
+
+function! AlignWrapper()
+    call inputsave()
+    let arg = input('Align: string? ')
+    call inputrestore()
+    return Align(arg)
+endfunction
+
+vnoremap <leader>a <Esc>:call AlignWrapper()<CR>
+
+" ==============================================================================
 
 
-" source fzf
-source /usr/share/vim/vimfiles/plugin/fzf.vim
 
-" -- fzf options
-" all files
-nnoremap <C-P> :call fzf#run(fzf#wrap({'options': ['--prompt', getcwd()]}))<CR>'
-" files tracked by git only
-nnoremap g<C-P> :call fzf#run(
-    \fzf#wrap({'source': 'git ls-files', 'options': ['--prompt', getcwd()]}))<CR>'
+" ==============================================================================
+" Autocommands
+
+" Only do this part when compiled with support for autocommands
+augroup aug-vimrc
+    autocmd!
+
+    " When editing a file, always jump to the last cursor position
+    autocmd BufReadPost *
+        \ if line("'\"") > 0 && line ("'\"") <= line("$") |
+        \     execute "normal! g`\"" |
+        \ endif
+
+    " run shellcheck on shell scripts
+    autocmd FileType sh command! -buffer Posixcheck !shellcheck -s sh %
+    autocmd FileType sh nnoremap <buffer> <leader>mx :Posixcheck<CR>
+
+    " some commands for latex files
+    autocmd FileType plaintex,tex inoremap <buffer> <C-q>i \textit{}<left>
+    autocmd FileType plaintex,tex inoremap <buffer> <C-q>b \textbf{}<left>
+    autocmd FileType plaintex,tex vnoremap <buffer> <leader>i <Esc>`>a}<Esc>`<i\textit{<Esc>f}
+    autocmd FileType plaintex,tex vnoremap <buffer> <leader>b <Esc>`>a}<Esc>`<i\textbf{<Esc>f}
+
+    " smaller indent size for these filetypes
+    autocmd FileType bib,html,json,pug,xml,yaml setlocal shiftwidth=2
+
+    " disable spell checks on bib files
+    autocmd FileType bib setlocal nospell
+
+    " line numbers in netrw
+    autocmd FileType netrw setlocal rnu | setlocal nu
+
+    " autocmd FileType c,cpp syntax keyword cType "\<\w+_t\>"
+
+augroup END
+
+" ==============================================================================
 
 
-filetype plugin on
 
-" -- VimPolyglot
-let g:polyglot_disabled = ['autoindent', 'csv', 'sensible']
-let g:perl_sub_signatures = 1
+" ==============================================================================
+" Plugins
 
-" plugin manager options
-
-if empty(glob(plugin_data_dir))
-    silent execute '!curl -fLo '.plugin_data_dir.' --create-dirs '.
+" plugin directories
+let plugin_data_dir    = $XDG_DATA_HOME  . '/vim/autoload'
+let plugin_data_file   = plugin_data_dir . '/plug.vim'
+let plugin_install_dir = $XDG_DATA_HOME  . '/vim/plugged'
+if empty(glob(plugin_data_file))
+    silent execute '!curl -fLo ' . plugin_data_file . ' --create-dirs ' .
     \'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
     autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
+
+" -- VimPolyglot (must appear before loading it)
+let g:polyglot_disabled = ['autoindent', 'csv', 'sensible']
+let g:perl_sub_signatures = 1
+
 " plugins
 call plug#begin(plugin_install_dir)
 
-Plug 'ycm-core/YouCompleteMe'   " LSP manager (Python, C, C++, Java, Rust, JS)
-Plug 'mkitt/tabline.vim'        " Tabline skin
 Plug 'sheerun/vim-polyglot'     " Rich syntax highlight
-Plug 'mhartington/oceanic-next' " Color scheme
+" Plug 'sukima/xmledit'           " Self explanatory
+Plug 'tpope/vim-fugitive'       " Git integration
 Plug 'vim-airline/vim-airline'  " Status bar
-Plug 'sukima/xmledit'           " Self explanatory
-Plug 'jupyter-vim/jupyter-vim'  " Connect to Jupyter console
+Plug 'ycm-core/YouCompleteMe'   " LSP manager (Python, C, C++, Java, Rust, JavaScript)
+
+" Color schemes
+Plug 'mhartington/oceanic-next'
+Plug 'nordtheme/vim'
+
+" Plug 'mkitt/tabline.vim'        " Tabline skin
+
+Plug 'tpope/vim-commentary'       " Comments stuff out
 
 call plug#end()
 
 
-" plugin options
-
 " -- YCM
-let g:ycm_add_previw_to_completeopt = 0
-set completeopt-=preview
+" let g:ycm_add_previw_to_completeopt = 0
 
-let g:ycm_global_ycm_extra_conf = "~/.config/ycm_extra_conf.py"
+let g:ycm_global_ycm_extra_conf = $XDG_CONFIG_HOME . "/ycm_extra_conf.py"
 
 let g:ycm_echo_current_diagnostic = 'virtual-text'
-let g:ycm_update_diagnostics_in_insert_mode = 0
+let g:ycm_update_diagnostics_in_insert_mode = 1
 let g:ycm_auto_hover = ''
+" FIXME
+" doesn't work for Java
+let g:ycm_semantic_triggers =
+ \  {
+ \      'java':    ['re!\w{2}'],
+ \      'c':       ['re!\w{2}'],
+ \      'python':  ['re!\w{2}'],
+ \      'haskell': ['re!\w{2}'],
+ \  }
+
 " let g:ycm_enable_inlay_hints = 1
 " let g:ycm_clear_inlay_hints_in_insert_mode = 1
 
 nnoremap K <plug>(YCMHover)
-nnoremap <leader>'r "3yiwq:iYcmCompleter RefactorRename  <Esc>"3PA
+vnoremap K <nop>
+nnoremap <leader>'r "3yiwq:iYcmCompleter RefactorRename <Esc>"3pA
 nnoremap <leader>'f :YcmCompleter FixIt<CR>
 nnoremap <leader>'p :YcmCompleter Format<CR>
 nnoremap <leader>'o :YcmCompleter GoToDocumentOutline<CR>
 nnoremap gd :YcmCompleter GoToDeclaration<CR>
 
+let s:pid = getpid()
+let s:pylsp_log      = '/tmp/pylsp-'      . s:pid . '.log'
+let s:texlab_log     = '/tmp/texlab-'     . s:pid . '.log'
+let s:haskell_ls_log = '/tmp/haskell-ls-' . s:pid . '.log'
+
 let g:ycm_language_server =
-  \ [
-  \   {
-  \     'name': 'python',
-  \     'cmdline': [ 'pylsp', '-v', '--log-file', '/tmp/pylsp.log' ],
-  \     'filetypes': [ 'python' ]
-  \   }
-  \ ]
+ \  [
+ \      {
+ \          'name':      'python',
+ \          'cmdline':   ['pylsp', '-v', '--log-file', s:pylsp_log],
+ \          'filetypes': ['python'],
+ \      },
+ \      {
+ \          'name':      'tex',
+ \          'cmdline':   ['texlab', '-v', '--log-file', s:texlab_log],
+ \          'filetypes': ['tex', 'plaintex'],
+ \      },
+ \      {
+ \          'name':      'haskell',
+ \          'cmdline':   ['haskell-language-server', '--lsp', '-l', s:haskell_ls_log],
+ \          'filetypes': ['haskell'],
+ \      },
+ \  ]
+
+augroup aug-ycm
+
+    autocmd!
+
+    " delete log files on exit
+    autocmd VimLeave * exec '!rm -f ' . s:pylsp_log . ' ' . s:texlab_log . ' ' . s:haskell_ls_log
+
+    " better highlighting for K command
+    autocmd FileType c,cpp
+     \  let b:ycm_hover =
+     \      {
+     \          'command': 'GetDoc',
+     \          'syntax': &filetype
+     \      }
+
+    autocmd FileType haskell
+     \  let b:ycm_hover =
+     \      {
+     \          'command': 'GetHover',
+     \          'syntax': &filetype
+     \      }
+    " autocmd FileType python
+    "  \  let b:ycm_hover =
+    "  \      {
+    "  \          'command': 'GetType',
+    "  \          'syntax': &filetype
+    "  \      }
+
+augroup END
 
 
-" -- JupyterVim
-" Run current file
-nnoremap <buffer> <silent> +r :JupyterRunFile<CR>
-
-" Connect to Qt Console
-nnoremap <buffer> <silent> +c :JupyterConnect<CR>
-
-" Change to directory of current file
-nnoremap <buffer> <silent> +d :JupyterCd %:p:h<CR>
-
-" Send a selection of lines
-nnoremap <buffer> <silent> +s :JupyterSendCell<CR>
-
-" New cell
-nnoremap +n o## BEGIN<CR><CR><CR>## END<Esc>kO
+" -- Airline
+"let g:airline_detect_spelllang='flag'
+let g:airline_powerline_fonts = 1
+let g:airline_theme='oceanicnext'
 
 
 " -- Theme
-let g:oceanic_next_terminal_bold = 1
-let g:oceanic_next_terminal_italic = 1
+"let g:oceanic_next_terminal_bold=1
+"let g:oceanic_next_terminal_italic=1
 colorscheme OceanicNext
+colorscheme OceanicNext "FIXME
+
+"highlight SpellBad   guibg=#ff1100
+"highlight SpellLocal guibg=#cc8500
+"highlight SpellCap   guibg=#cc8500
 
 
-" Enable font ligatures
-set guiligatures=!\"#$%&()*+-./:<=>?@[]^_{\|~
+" -- FZF
+" source FZF
+source /usr/share/vim/vimfiles/plugin/fzf.vim
 
-" reload file on the fly if changed elsewhere
-set autoread
+" fuzzy finder for all non hidden files in CWD
+nnoremap <C-P> :call
+ \  fzf#run(
+ \      fzf#wrap(
+ \          {
+ \              'options': ['--prompt', getcwd()]
+ \          }
+ \      )
+ \  )<CR>
+" fuzzy finder for files tracked by git only
+nnoremap g<C-P> :call
+ \  fzf#run(
+ \      fzf#wrap(
+ \          {
+ \              'source': 'git ls-files',
+ \              'options': ['--prompt', getcwd()]
+ \          }
+ \      )
+ \  )<CR>
 
-" Only do this part when compiled with support for autocommands
-augroup myrc
-    autocmd!
-    " When editing a file, always jump to the last cursor position
-    autocmd BufReadPost *
-                \ if line("'\"") > 0 && line ("'\"") <= line("$") |
-                \   exe "normal! g'\"" |
-                \ endif
-augroup END
+" ==============================================================================
 
-" :set [option]?            ==> print current value for given option
-" :echo [var]               ==> print current value for given var
-" :verbose set [option]?    ==> print current value for given option and where it was defined
+" :set [option]?         ==> print current value for given option
+" :echo [var]            ==> print current value for given var
+" :verbose set [option]? ==> print current value for given option and where it was defined
+
+" -- JupyterVim
+" Run current file
+" nnoremap <buffer> <silent> +r :JupyterRunFile<CR>
+
+" Connect to Qt Console
+" nnoremap <buffer> <silent> +c :JupyterConnect<CR>
+
+" Change to directory of current file
+" nnoremap <buffer> <silent> +d :JupyterCd %:p:h<CR>
+
+" Send a selection of lines
+" nnoremap <buffer> <silent> +s :JupyterSendCell<CR>
+
+" New cell
+" nnoremap +n o## BEGIN<CR><CR><CR>## END<Esc>kO
+
+" Delete cell
+" nnoremap +x ?^## BEGIN<CR>V/^## END<CR>d

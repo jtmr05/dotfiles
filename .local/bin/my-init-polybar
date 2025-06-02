@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (C) 2023  jtmr05
+# Copyright (C) 2023-2024 jtmr05
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,12 +13,30 @@
 # GNU General Public License for more details.
 
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-killall -q polybar
+PROCESSES_LIST_PATH="/tmp/processes_$$"
 
-silent 'polybar bottom 2>&1 | tee /tmp/polybar.log'
+ps -e > "$PROCESSES_LIST_PATH"
 
-#polybar left 2>&1 | tee -a /tmp/polybar.log > /dev/null & disown
-#polybar middle 2>&1 | tee -a /tmp/polybar.log > /dev/null & disown
-#polybar right 2>&1 | tee -a /tmp/polybar.log > /dev/null & disown
+has_instance=$(\
+    grep polybar "$PROCESSES_LIST_PATH" 2> /dev/null |\
+    awk '{ print $4 }' |\
+    while read -r cmd; do
+        if [ "$cmd" = 'polybar' ]; then
+            echo "found"
+            exit 0
+        fi
+    done
+)
+
+rm -f "$PROCESSES_LIST_PATH"
+
+if [ -n "$has_instance" ]; then
+    polybar-msg cmd restart
+    echo "sent restart IPC message to polybar" >&2
+    exit 0
+else
+    silent -o /tmp/polybar.log -e /tmp/polybar.log -- polybar -l info bottom
+    echo "started new polybar instance" >&2
+fi

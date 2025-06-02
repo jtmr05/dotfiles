@@ -28,32 +28,32 @@ def get_include_dirs(path: str) -> list[str]:
         return []
 
 
-def get_include_dirs2(path: str) -> list[str]:
+# def get_include_dirs2(path: str) -> list[str]:
 
-    include_dirs: list[str] = []
-    contents:     list[str] = list(filter(lambda c: c[0] != '.', os.listdir(path)))
-    is_included:  bool = False
+#     include_dirs: list[str] = []
+#     contents:     list[str] = list(filter(lambda c: c[0] != '.', os.listdir(path)))
+#     is_included:  bool = False
 
-    for c in contents:
+#     for c in contents:
 
-        abs_path = f'{path}/{c}'
+#         abs_path = f'{path}/{c}'
 
-        if not is_included and os.path.isfile(abs_path) and PATTERN.search(c):
+#         if not is_included and os.path.isfile(abs_path) and PATTERN.search(c):
 
-            include_dirs.append(f'-I{path}')
-            is_included = True
+#             include_dirs.append(f'-I{path}')
+#             is_included = True
 
-        elif os.path.isdir(abs_path):
-            include_dirs += get_include_dirs2(abs_path)
+#         elif os.path.isdir(abs_path):
+#             include_dirs += get_include_dirs2(abs_path)
 
-    return include_dirs
+#     return include_dirs
 
-    include_dirs:  list[str] = []
-    contents:      list[str] = list(filter(lambda c: c[0] != '.', os.listdir(path)))
-    is_included:   bool = False
+#     include_dirs:  list[str] = []
+#     contents:      list[str] = list(filter(lambda c: c[0] != '.', os.listdir(path)))
+#     is_included:   bool = False
 
 
-def Settings(** kwargs) -> dict:
+def Settings(**kwargs) -> dict:
 
     language: str = kwargs['language']
 
@@ -107,23 +107,21 @@ def Settings(** kwargs) -> dict:
                 }
             }
 
-# https://github.com/palantir/python-language-server/blob/develop/vscode-client/package.json
-# https://github.com/python-lsp/python-lsp-server/blob/develop/CONFIGURATION.md
         case 'python':
+            # https://github.com/python-lsp/python-lsp-server/discussions/176#discussioncomment-3291195
+            # https://github.com/python-lsp/python-lsp-server/blob/develop/CONFIGURATION.md
             return {
                 'ls': {
-                    "contributes": {
-                        "configuration": {
-                            "title": "Python Language Server Configuration",
-                            "type": "object",
-                            "properties": {
-                                "pylsp.plugins.pycodestyle.enabled": {
-                                    "type": "boolean",
-                                    "default": False,
-                                    "description": "Disable pycodestyle"
-                                }
-                            }
-                        }
+                    'pylsp': {
+                        'plugins': {
+                            'pycodestyle': {
+                                'maxLineLength': 100,
+                                'hangClosing': False,
+                            },
+                            'pylint': {
+                                'enabled': True,
+                            },
+                        },
                     }
                 }
             }

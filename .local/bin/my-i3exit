@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/sh
 
-# Copyright (C) 2023  jtmr05
+# Copyright (C) 2023-2024 jtmr05
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,10 +13,90 @@
 # GNU General Public License for more details.
 
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-# with openrc use loginctl
-[ "$(cat /proc/1/comm)" = "systemd" ] && logind=systemctl || logind=loginctl
+SCRIPT_NAME="${0##*/}"
+
+usage(){
+    echo "Usage: $SCRIPT_NAME [OPTION] [--] ACTION"
+    echo 'Perform the exit ACTION on the system.'
+    echo ''
+    echo 'Available actions:'
+    echo '  hibernate'
+    echo '  lock'
+    echo '  logout'
+    echo '  reboot'
+    echo '  shutdown'
+    echo '  suspend'
+    echo ''
+    echo 'Available options:'
+    echo '  -h        print this message and exit'
+    echo '  -n        get notification message'
+
+    exit 0
+}
+
+try(){
+    echo "Try '$SCRIPT_NAME -h' for more information" > /dev/stderr
+    exit 1
+}
+
+notif_msg(){
+    echo '• (h)ibernate\n• (l)ock\n• l(o)gout\n• (r)eboot\n• (s)hutdown\n• s(u)spend'
+    exit 0
+}
+
+# load array manipulation utility functions
+. "$HOME/.local/lib/array.sh"
+
+index=1; while [ "$index" -le $# ]; do
+
+    elem="$(eval "$(array_index "$index")")"
+    case "$elem" in
+        '-')
+            echo "$SCRIPT_NAME: warning: single dash ignored" > /dev/stderr
+            eval "$(array_remove "$index" "$@")"
+            ;;
+        -*)
+            eval "$(array_remove "$index" "$@")"
+            opts="${elem#-}"
+
+            while [ -n "$opts" ]; do
+                opt=$(printf '%c' "$opts")
+                case "$opt" in
+                    'h')
+                        usage
+                        ;;
+                    'n')
+                        notif_msg                        
+                        ;;
+                    *)
+                        echo "$SCRIPT_NAME: '-$opt': unrecognized option" > /dev/stderr
+                        try
+                        ;;
+                esac
+                # unreachable with current options available
+                # commented out to keep ShellCheck happy
+                # opts="${opts#"$opt"}"
+            done
+            ;;
+        *)
+            index=$((index+1))
+            ;;
+    esac
+done
+
+if [ $# -eq 0 ]; then
+    echo "$SCRIPT_NAME: missing operand" > /dev/stderr
+    try
+fi
+
+if [ $# -gt 1 ]; then
+    echo "$SCRIPT_NAME: '$2': extra operand" > /dev/stderr
+    try
+fi
+
+logind=systemctl
 
 case "$1" in
     lock)
@@ -25,26 +105,16 @@ case "$1" in
     logout)
         i3-msg exit
         ;;
-    switch_user)
-        dm-tool switch-to-greeter
-        ;;
     suspend)
         my-blurlock && $logind suspend
         ;;
-    #hibernate)
-    #    my-blurlock && $logind hibernate
-    #    ;;
+    hibernate)
+        my-blurlock && $logind hibernate
+        ;;
     reboot)
         $logind reboot
         ;;
     shutdown)
         $logind poweroff
         ;;
-    *)
-        echo "== ! i3exit: missing or invalid argument ! =="
-        #echo "Try again with: lock | logout | switch_user | suspend | hibernate | reboot | shutdown"
-        echo "Try again with: lock | logout | switch_user | suspend | reboot | shutdown"
-        exit 2
 esac
-
-exit 0

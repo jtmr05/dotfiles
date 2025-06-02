@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# Copyright (C) 2023  jtmr05
+# Copyright (C) 2023-2024 jtmr05
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,30 +13,26 @@
 # GNU General Public License for more details.
 
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use v5.36;
 use autodie;
 
 use Image::Magick;
 
-
 sub get_screen_resolution(){
 
     open my $pipe, '-|', 'xrandr -q';
 
     while(<$pipe>){
-        if(m/.*current\s(\d+)\sx\s(\d+),.*/){
-            return "$1x$2";
-        }
+        return "$1x$2" if(m/.*current\s(\d+)\sx\s(\d+),.*/);
     }
 
     return undef;
 }
 
 
-# PIPING TO PERL IN A PERL SCRIPT?? LMAOO
-use constant IMAGE_PATH               => `mktemp --suffix=.jpeg | perl -ne 'chomp; print;'`;
+use constant IMAGE_PATH               => "/tmp/my-blurlock-$$.jpeg";
 use constant ICON_PATH                => "$ENV{HOME}/.local/share/i3lock/lock.png";
 use constant DARK_ICON_PATH           => "$ENV{HOME}/.local/share/i3lock/lockdark.png";
 
@@ -62,7 +58,6 @@ my @COLOR_PARAMS = (
 
 
 sub load_image($filename){
-
     my $img = Image::Magick->new();
     open my $image_fh, '<', $filename;
     $img->Read(file => \$image_fh);
@@ -70,7 +65,6 @@ sub load_image($filename){
 }
 
 sub store_image($img, $filename){
-
     open my $image_fh, '>', $filename;
     $img->Write(file => \$image_fh, filename => $filename);
 }
@@ -148,46 +142,47 @@ sub generate_final_image($is_black){
         geometry  => '+0+160',
         gravity   => 'Center',
         text      => 'Type your password to unlock',
+        font      => 'DejaVu-Sans',
     );
     composite_lock_image($scrot, $is_black);
 
     store_image($scrot, IMAGE_PATH);
 }
 
+sub make_screenshot(){
+    my $scrot = Image::Magick->new();
+    $scrot->Read('x:root');
+    $scrot->Write(IMAGE_PATH);
+    undef $scrot;
+}
 
 sub main(){
 
-    (system 'import -silent -window root ' . IMAGE_PATH) == 0 or die IMAGE_PATH . ": $!";
+    make_screenshot();
 
     my $is_black = make_black_scheme();
     generate_final_image($is_black);
 
-
-    # little shift hack eheheh
-    # make a scalar reference to the value we want to interpolate
-    # then dereference it
     my $i3lock_params =
-        "--inside-color=${      \shift @COLOR_PARAMS} " .
-        "--ring-color=${        \shift @COLOR_PARAMS} " .
-        "--line-color=${        \shift @COLOR_PARAMS} " .
-        "--keyhl-color=${       \shift @COLOR_PARAMS} " .
-        "--ringver-color=${     \shift @COLOR_PARAMS} " .
-        "--separator-color=${   \shift @COLOR_PARAMS} " .
-        "--insidever-color=${   \shift @COLOR_PARAMS} " .
-        "--ringwrong-color=${   \shift @COLOR_PARAMS} " .
-        "--insidewrong-color=${ \shift @COLOR_PARAMS} " .
-        "--verif-color=${       \shift @COLOR_PARAMS} " .
-        "--wrong-color=${       \shift @COLOR_PARAMS} " .
-        "--time-color=${        \shift @COLOR_PARAMS} " .
-        "--date-color=${        \shift @COLOR_PARAMS} " .
-        "--layout-color=${      \shift @COLOR_PARAMS} ";
-        #"--layout-color=${      \shift @COLOR_PARAMS} " . "--no-verify ";
+        "--inside-color="      . "$COLOR_PARAMS[0]  " .
+        "--ring-color="        . "$COLOR_PARAMS[1]  " .
+        "--line-color="        . "$COLOR_PARAMS[2]  " .
+        "--keyhl-color="       . "$COLOR_PARAMS[3]  " .
+        "--ringver-color="     . "$COLOR_PARAMS[4]  " .
+        "--separator-color="   . "$COLOR_PARAMS[5]  " .
+        "--insidever-color="   . "$COLOR_PARAMS[6]  " .
+        "--ringwrong-color="   . "$COLOR_PARAMS[7]  " .
+        "--insidewrong-color=" . "$COLOR_PARAMS[8]  " .
+        "--verif-color="       . "$COLOR_PARAMS[9]  " .
+        "--wrong-color="       . "$COLOR_PARAMS[10] " .
+        "--time-color="        . "$COLOR_PARAMS[11] " .
+        "--date-color="        . "$COLOR_PARAMS[12] " .
+        "--layout-color="      . "$COLOR_PARAMS[13] ";
+        #"--layout-color="      . "$COLOR_PARAMS[13] --no-verify";
 
     system 'i3lock -i ' . IMAGE_PATH . " -e $i3lock_params";
 
-    #unlink IMAGE_PATH;
+    unlink IMAGE_PATH;
 }
 
-unless(caller){
-    main();
-}
+main();

@@ -1,14 +1,23 @@
 configuration {
 
-	modi: "drun,combi";
-	font: "FiraCode 18";
-	combi-modi: "drun";
-	show-icons: true;
+    modi: "drun,combi";
+    font: "JetBrains Mono 18";
+    combi-modi: "drun";
+    show-icons: true;
 
+    run {
+        show-icons: false;
+    }
 
-	ssh-client: "ssh";
-	//terminal: "/usr/bin/gnome-terminal";
-	ssh-command: "{terminal} -e '{ssh-client} {host}'";
+    ssh-client: "ssh";
+    //terminal: "/usr/bin/gnome-terminal";
+    ssh-command: "{terminal} -e '{ssh-client} {host}'";
+
+    kb-accept-alt: "Control+m";
+    kb-row-down: "Control+j,Down";
+    kb-row-up: "Control+k,Up";
+    kb-accept-entry: "Return,KP_Enter";
+    kb-remove-to-eol: "";
 }
 
 //@theme "Monokai"

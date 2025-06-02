@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (C) 2023  jtmr05
+# Copyright (C) 2023-2024 jtmr05
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,102 +13,106 @@
 # GNU General Public License for more details.
 
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-SCRIPT_NAME=cell2script
+SCRIPT_NAME="${0##*/}"
 
 usage(){
-    echo "Usage: $SCRIPT_NAME [OPTION] [--] FILE..."
-    echo "Convert Jupyter Notebook cell-style scripts to regular scripts"
-    echo ""
-    echo "Available options:"
-    echo "  -f    override existing output files"
-    echo "  -h    print this message and exit"
-    echo ""
-    echo "If '--' is passed in, all following arguments are interpreted as file names"
+    echo "Usage: $SCRIPT_NAME [OPTION]... [--] FILE..."
+    echo 'Convert Jupyter Notebook cell-style scripts to regular scripts.'
+    echo 'New files will be of the form {BASE_NAME}_script{.EXT}.'
+    echo ''
+    echo 'Available options:'
+    echo '  -f        override existing output files'
+    echo '  -h        print this message and exit'
+
+    exit 0
 }
+
+try(){
+    echo "Try '$SCRIPT_NAME -h' for more information" > /dev/stderr
+    exit 1
+}
+
+# load array manipulation utility functions
+. "$HOME/.local/lib/array.sh"
+
+# options
+force=0
+
+index=1; while [ "$index" -le $# ]; do
+
+    elem="$(eval "$(array_index "$index")")"
+    case "$elem" in
+        '-')
+            echo "$SCRIPT_NAME: warning: single dash ignored" > /dev/stderr
+            eval "$(array_remove "$index" "$@")"
+            ;;
+        -*)
+            eval "$(array_remove "$index" "$@")"
+            opts="${elem#-}"
+
+            while [ -n "$opts" ]; do
+                opt=$(printf '%c' "$opts")
+                case "$opt" in
+                    'f')
+                        force=1
+                        ;;
+                    'h')
+                        usage
+                        ;;
+                    '-')
+                        break 2
+                        ;;
+                    *)
+                        echo "$SCRIPT_NAME: '-$opt': unrecognized option" > /dev/stderr
+                        try
+                        ;;
+                esac
+                opts="${opts#"$opt"}"
+            done
+            ;;
+        *)
+            index=$((index+1))
+            ;;
+    esac
+done
+
+if [ $# -eq 0 ]; then
+    echo "$SCRIPT_NAME: missing operand" > /dev/stderr
+    try
+fi
 
 max(){
     [ "$1" -gt "$2" ] && return "$1"
     return "$2"
 }
 
-if [ $# -eq 0 ]; then
-    echo "$SCRIPT_NAME: missing operand"               > /dev/stderr
-    echo "Try '$SCRIPT_NAME -h' for more information." > /dev/stderr
-    exit 1
-fi
-
-force=0
-input_files=""
-has_sep=0
-
-for arg in "$@"; do
-
-    if [ $has_sep -eq 0 ]; then
-        case $arg in
-            '-f')
-                force=1
-                continue
-                ;;
-            '-h')
-                usage
-                exit 0
-                ;;
-            '--')
-                has_sep=1
-                continue
-                ;;
-            *)
-                ;;
-        esac
-    fi
-
-    input_files="$input_files
-        $arg"
-done
-
-input_files=$(perl -e '$_ = shift; s/^\s+//mg; print' "$input_files")
-
-IFS='
-'
 exit_code=0
-for f in $input_files; do
 
-    new_fn=$(perl -E '
+for f in "$@"; do
 
-        $base = q{};
-        $ext = q{.py};
-        $count = 1;
-
-        if($ARGV[0] =~ m/^(.+)(\..+)$/){
-            $base = $1;
-            $ext = $2;
-        }
-        else {
-            $base = shift;
-        }
-
-        print qq{${base}_script$ext};' "$f"
-    )
-
-    if ! [ -e "$f" ]; then
-        echo "$SCRIPT_NAME: $f: no such file or directory" > /dev/stderr
+    if [ ! -e "$f" ]; then
+        echo "$SCRIPT_NAME: '$f': no such file or directory" > /dev/stderr
         max "$exit_code" 2
         exit_code=$?
         continue
     fi
 
+    base_name="${f%.*}"
+    ext="${f##*.}"
+    new_fn="${base_name}_script.$ext"
+
     if [ "$force" -eq 0 ] && [ -e "$new_fn" ]; then
-        echo "$SCRIPT_NAME: $new_fn: file exists"          > /dev/stderr
+        echo "$SCRIPT_NAME: '$new_fn': file exists" > /dev/stderr
         max "$exit_code" 3
         exit_code=$?
         continue
     fi
 
     echo '#!/usr/bin/env python3' > "$new_fn"
-    perl -pe 's/^## (BEGIN|END).*$//' "$f" >> "$new_fn"
-    autopep8 -i "$new_fn"
+    perl -pe 's/^\s*##\s*(BEGIN|END).*$//' "$f" | autopep8 - >> "$new_fn"
+    #autopep8 -i "$new_fn"
     chmod +x "$new_fn"
 done
 

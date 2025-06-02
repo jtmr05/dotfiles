@@ -1,41 +1,72 @@
-# i3 config file (v4)
-# Please see http://i3wm.org/docs/userguide.html for a complete reference!
-
-# Set mod key (Mod1=<Alt>, Mod4=<Super>)
+# set mod key (Mod1 = <Alt>, Mod4=<Super>)
 set $mod Mod4
 
 # Set the defaul terminal to be used
-set $terminal gnome-terminal
+set $terminal alacritty
 
-# Configure border style <normal|1pixel|pixel xx|none|pixel>
-default_border pixel 3
-default_floating_border pixel 3
+# border size
+set $border 2
 
-# Hide borders
+# gap sizes
+set $inner_gap 8
+set $outer_gap 0
+set $bottom_gap 34
+set $step_gap 3
+
+# configure border style <normal|1pixel|pixel xx|none|pixel>
+default_border pixel $border
+default_floating_border pixel $border
+
+# hide borders
 hide_edge_borders none
 
-# change borders
-bindsym $mod+u border none
-bindsym $mod+y border pixel 3
-bindsym $mod+n border normal
+# set inner/outer gaps
+gaps inner $inner_gap
+gaps outer $outer_gap
 
-# Font for window titles. Will also be used by the bar unless a different font
+# leave space for polybar
+gaps bottom $bottom_gap
+
+# non-wrapping focus change
+focus_wrapping no
+
+# font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
 font xft:Noto Sans UI Medium 11
 
-# Use Mouse+$mod to drag floating windows
+# use mouse+$mod to drag floating windows
 floating_modifier $mod
 
+# change borders
+bindsym $mod+y border pixel $border
+bindsym $mod+u border none
+
+# change gaps
+bindsym $mod+plus gaps inner all plus $step_gap,\
+    gaps outer all plus $step_gap,\
+    gaps bottom all set $bottom_gap
+bindsym $mod+Shift+plus gaps inner all minus $step_gap,\
+    gaps outer all minus $step_gap,\
+    gaps bottom all set $bottom_gap
+bindsym $mod+g gaps inner all set $inner_gap,\
+    gaps outer all set $outer_gap,\
+    gaps bottom all set $bottom_gap
+
 # start a terminal
-bindsym $mod+Return exec $terminal --role=FLOAT
-bindsym $mod+Shift+Return exec $terminal --role=TILE
+bindsym $mod+Shift+Return exec --no-startup-id $terminal
+bindsym $mod+Return exec --no-startup-id $terminal --title=Alacritty_floating
 
 # kill focused window
 bindsym $mod+Shift+q kill
-# bindsym $mod+Shift+x kill
+
+# close all notifications
+bindsym $mod+n exec --no-startup-id dunstctl close-all
+# open context menu for notification
+bindsym $mod+Ctrl+n exec --no-startup-id dunstctl context
 
 # start program launcher
-bindsym $mod+d exec rofi -show drun
+bindsym $mod+d exec "rofi -modes drun,run -show drun"
+#bindsym $mod+d exec --no-startup-id dmenu_run
 
 # start emoji picker
 bindsym $mod+Shift+d exec emoji-picker
@@ -43,48 +74,19 @@ bindsym $mod+Shift+d exec emoji-picker
 # toggle touchpad
 bindsym $mod+F3 exec --no-startup-id my-toggle-touchpad
 
-
-################################################################################################
-## sound-section - DO NOT EDIT if you wish to automatically upgrade Alsa -> Pulseaudio later! ##
-################################################################################################
-
-# exec --no-startup-id pulseaudio
-# exec --no-startup-id pa-applet
-
 # adjust volume
 bindsym XF86AudioRaiseVolume exec --no-startup-id my-volume-mixer '+5'
 bindsym XF86AudioLowerVolume exec --no-startup-id my-volume-mixer '-5'
 bindsym XF86AudioMute exec --no-startup-id my-volume-mixer 'toggle'
 
-################################################################################################
-
-# Start Applications
-bindsym $mod+Ctrl+b exec $terminal --role=FLOAT -e 'bmenu'
-# bindsym $mod+Ctrl+x --release exec --no-startup-id xkill
+# Randomize wallpaper
+bindsym $mod+F4 exec --no-startup-id nitrogen --set-zoom-fill --random
 
 
-# Set print keybinds in a dedicated mode
-# mode "$mode_print"; mode "default"
-bindsym Print mode "$mode_print"; exec --no-startup-id notify-send -r 888 'i3 ~ Print mode' '• (f)ull screen\n• (s)elect\n• (Shift + $key) to save to cp'
-
-#set $mode_print (f)ull screen, (w)indow, (s)elect, (Shift + key) for clipboard
-set $mode_print (f)ull screen, (s)elect, (Shift + key) for clipboard
-mode "$mode_print" {
-    bindsym f exec --no-startup-id flameshot full, mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
-    #bindsym f exec --no-startup-id i3-scrot -d, mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
-    bindsym Shift+f --release exec --no-startup-id flameshot full -c, mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
-
-    #bindsym w --release exec --no-startup-id i3-scrot -w, mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
-    #bindsym Shift+w --release exec --no-startup-id i3-scrot -wc, mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
-
-    bindsym s --release exec --no-startup-id flameshot gui, mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
-    bindsym Shift+s --release exec --no-startup-id flameshot gui -c, mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
-
-    # exit system mode: "Enter" or "Escape"
-    bindsym q mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
-    bindsym Escape mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
-}
-# focus_follows_mouse no
+# reload the configuration file and restart i3 inplace
+# (preserves your layout/session, can be used to upgrade i3)
+bindsym $mod+r reload; exec --no-startup-id notify-send 'i3 config reloaded...'
+bindsym $mod+Shift+r restart
 
 # change focus
 bindsym $mod+j focus down
@@ -99,35 +101,24 @@ bindsym $mod+Shift+l move right
 bindsym $mod+Shift+h move left
 
 # workspace back and forth (with/without active container)
-# workspace_auto_back_and_forth yes
-bindsym $mod+b workspace back_and_forth
-bindsym $mod+Shift+b move container to workspace back_and_forth; workspace back_and_forth
-
-# split orientation
-bindsym $mod+c split horizontal; exec --no-startup-id notify-send -r 999 'tile horizontally'
-bindsym $mod+v split vertical; exec --no-startup-id notify-send -r 999 'tile vertically'
-bindsym $mod+q split toggle; exec --no-startup-id notify-send -r 999 'tile toggle'
+bindsym $mod+Tab workspace back_and_forth
+bindsym $mod+Shift+Tab move container to workspace back_and_forth; workspace back_and_forth
 
 # toggle fullscreen mode for the focused container
-# bindsym $mod+F11 fullscreen toggle
 bindsym $mod+f fullscreen toggle
-
-# change container layout (stacked, tabbed, toggle split)
-# bindsym $mod+s layout stacking
-# bindsym $mod+w layout tabbed
-# bindsym $mod+e layout toggle split
-
-# toggle tiling / floating
-bindsym $mod+Shift+space floating toggle
 
 # change focus between tiling / floating windows
 bindsym $mod+space focus mode_toggle
 
-# toggle sticky
+# toggle tiling / floating
+bindsym $mod+Shift+space floating toggle
+
+# toggle sticky (floating windows)
 bindsym $mod+Shift+s sticky toggle
 
 # focus the parent container
 bindsym $mod+a focus parent
+
 
 # move the currently focused window to the scratchpad
 bindsym $mod+Shift+minus move scratchpad
@@ -137,15 +128,10 @@ bindsym $mod+Shift+minus move scratchpad
 bindsym $mod+minus scratchpad show
 
 # navigate workspaces next / previous
-# bindsym $mod+Ctrl+Right workspace next
-# bindsym $mod+Ctrl+Left workspace prev
 bindsym $mod+Ctrl+l workspace next
 bindsym $mod+Ctrl+h workspace prev
 
 # Workspace names
-# to display names or symbols instead of plain workspace numbers you can use
-# something like: set $ws1 1:mail
-#                 set $ws2 2:
 set $ws1 1
 set $ws2 2
 set $ws3 3
@@ -154,6 +140,28 @@ set $ws5 5
 set $ws6 6
 set $ws7 7
 set $ws8 8
+set $ws9 9
+
+# set $ws1 α
+# set $ws2 β
+# set $ws3 γ
+# set $ws4 δ
+# set $ws5 ε
+# set $ws6 λ
+# set $ws7 μ
+# set $ws8 ω
+# set $ws9 π
+
+# auto layouts
+# set $i3l spiral to workspace $ws1
+# set $i3l spiral to workspace $ws2
+# set $i3l spiral to workspace $ws3
+# set $i3l spiral to workspace $ws4
+# set $i3l spiral to workspace $ws5
+# set $i3l spiral to workspace $ws6
+# set $i3l spiral to workspace $ws7
+# set $i3l spiral to workspace $ws8
+# set $i3l spiral to workspace $ws9
 
 # switch to workspace
 bindsym $mod+1 workspace $ws1
@@ -164,6 +172,7 @@ bindsym $mod+5 workspace $ws5
 bindsym $mod+6 workspace $ws6
 bindsym $mod+7 workspace $ws7
 bindsym $mod+8 workspace $ws8
+bindsym $mod+9 workspace $ws9
 
 # Move focused container to workspace
 bindsym $mod+Ctrl+1 move container to workspace $ws1
@@ -174,6 +183,7 @@ bindsym $mod+Ctrl+5 move container to workspace $ws5
 bindsym $mod+Ctrl+6 move container to workspace $ws6
 bindsym $mod+Ctrl+7 move container to workspace $ws7
 bindsym $mod+Ctrl+8 move container to workspace $ws8
+bindsym $mod+Ctrl+9 move container to workspace $ws9
 
 # Move to workspace with focused container
 bindsym $mod+Shift+1 move container to workspace $ws1; workspace $ws1
@@ -184,157 +194,117 @@ bindsym $mod+Shift+5 move container to workspace $ws5; workspace $ws5
 bindsym $mod+Shift+6 move container to workspace $ws6; workspace $ws6
 bindsym $mod+Shift+7 move container to workspace $ws7; workspace $ws7
 bindsym $mod+Shift+8 move container to workspace $ws8; workspace $ws8
+bindsym $mod+Shift+9 move container to workspace $ws9; workspace $ws9
 
 # Open applications on specific workspaces
-assign [class="WebCord"] $ws1
-assign [class="firefox"] $ws2
-assign [class="Nau3D"] $ws5
+assign [class = "WebCord"]   $ws1
+assign [class = "firefox"]   $ws2
+assign [class = "librewolf"] $ws2
 
 # Open specific applications in floating mode
-for_window [title="alsamixer"] floating enable
-for_window [title="File Transfer*"] floating enable
-for_window [class="Gnome-terminal" window_role="FLOAT"] floating enable
-for_window [class="Lightdm-settings"] floating enable
-for_window [class="Lxappearance"] floating enable
-for_window [class="Manjaro Settings Manager"] floating enable
-for_window [title="MuseScore: Play Panel"] floating enable
-for_window [class="Nitrogen"] floating enable
-for_window [class="Oblogout"] fullscreen enable
-for_window [class="octopi"] floating enable
-# for_window [title="About Pale Moon"] floating enable
-for_window [class="Pamac-manager"] floating enable
-for_window [class="Protonvpn"] floating enable
-for_window [class="qt5ct"] floating enable
-for_window [class="Qtconfig-qt4"] floating enable
-for_window [class="Simple-scan"] floating enable
-for_window [class="supertuxkart"] floating disable
-for_window [class="Skype"] floating enable
-for_window [class="Terminator" window_role="FLOAT"] floating enable
-for_window [class="Timeset-gui"] floating enable
-for_window [class="Xfburn"] floating enable
+for_window [class = "Lightdm-settings"]   floating enable
+for_window [class = "Lxappearance"]       floating enable
+for_window [class = "Nitrogen"]           floating enable
+for_window [class = "Protonvpn"]          floating enable
+for_window [class = "Qtconfig-qt4"]       floating enable
+for_window [class = "qt5ct"]              floating enable
+for_window [class = "Arandr"]             floating enable
+for_window [title = "Alacritty_floating"] floating enable
+for_window [title = "alsamixer"]          floating enable
+for_window [class = "supertuxkart"]       fullscreen enable
+# for_window [class = "firefox"] border pixel 3
 
-# switch to workspace with urgent window automatically
-for_window [urgent=latest] focus
-
-# reload the configuration file
-bindsym $mod+Shift+c reload
-
-# restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
-bindsym $mod+Shift+r restart
-
-# exit i3 (logs you out of your X session)
-# bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
 
 # Set shut down, restart and locking features
-bindsym $mod+0 mode "$mode_system"; exec --no-startup-id notify-send -r 888 'i3 ~ Exit mode' '• (l)ock\n• l(o)gout\n• s(w)itch_user\n• s(u)spend\n• (r)eboot\n• (s)hutdown'
-# set $mode_system (l)ock, l(o)gout, switch_(u)ser, (s)uspend, (h)ibernate, (r)eboot, (Shift+s)hutdown
-set $mode_system (l)ock, l(o)gout, s(w)itch_user, s(u)spend, (r)eboot, (s)hutdown
-mode "$mode_system" {
-    bindsym l exec --no-startup-id my-i3exit lock, mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
-    bindsym o exec --no-startup-id my-i3exit logout, mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
-    bindsym w exec --no-startup-id my-i3exit switch_user, mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
-    bindsym u exec --no-startup-id my-i3exit suspend, mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
+bindsym $mod+0 exec --no-startup-id my-i3-mode-notify exit, mode "exit"
+mode "exit" {
+    bindsym h exec --no-startup-id my-i3exit hibernate   && my-i3-mode-notify, mode "default"
+    bindsym l exec --no-startup-id my-i3exit lock        && my-i3-mode-notify, mode "default"
+    bindsym o exec --no-startup-id my-i3exit logout      && my-i3-mode-notify, mode "default"
+    bindsym r exec --no-startup-id my-i3exit reboot      && my-i3-mode-notify, mode "default"
+    bindsym s exec --no-startup-id my-i3exit shutdown    && my-i3-mode-notify, mode "default"
+    bindsym u exec --no-startup-id my-i3exit suspend     && my-i3-mode-notify, mode "default"
     # disabling because it doesn't work properly
-    # bindsym h exec --no-startup-id my-i3exit hibernate, mode "default"
-    bindsym r exec --no-startup-id my-i3exit reboot, mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
-    bindsym s exec --no-startup-id my-i3exit shutdown, mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
+    # bindsym h exec --no-startup-id my-i3exit hibernate   && notify-send -r 888 'i3 ~ Default mode' '', mode "default"
 
-    # exit system mode: "Enter" or "Escape"
-    bindsym Escape mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
-    bindsym q mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
+    # exit SYSTEM mode: q or Escape
+    bindsym q      exec --no-startup-id my-i3-mode-notify, mode "default"
+    bindsym Escape exec --no-startup-id my-i3-mode-notify, mode "default"
 }
 
 # Resize window (you can also use the mouse for that)
-bindsym $mod+r mode "resize"; exec --no-startup-id notify-send -r 888 'i3 ~ Resize mode' ''
+bindsym $mod+s exec --no-startup-id my-i3-mode-notify resize, mode "resize"
 mode "resize" {
+    # Pressing {h, l} will {shrink, grow} the window’s width.
+    # Pressing {k, j} will {shrink, grow} the window’s height.
+    bindsym h resize shrink width 10 px or 10 ppt
+    bindsym j resize grow height 10 px or 10 ppt
+    bindsym k resize shrink height 10 px or 10 ppt
+    bindsym l resize grow width 10 px or 10 ppt
 
-        # These bindings trigger as soon as you enter the resize mode
-        # Pressing h will shrink the window’s width.
-        # Pressing l will grow the window’s width.
-        # Pressing k will shrink the window’s height.
-        # Pressing j will grow the window’s height.
-        bindsym h resize shrink width 10 px or 10 ppt
-        bindsym j resize grow height 10 px or 10 ppt
-        bindsym k resize shrink height 10 px or 10 ppt
-        bindsym l resize grow width 10 px or 10 ppt
+    # same bindings, but for scroll movements
+    bindsym --whole-window button6 resize shrink width 10 px or 10 ppt
+    bindsym --whole-window button5 resize grow height 10 px or 10 ppt
+    bindsym --whole-window button4 resize shrink height 10 px or 10 ppt
+    bindsym --whole-window button7 resize grow width 10 px or 10 ppt
 
-        # same bindings, but for scroll movements
-        bindsym --whole-window button6 resize shrink width 10 px or 10 ppt
-        bindsym --whole-window button5 resize grow height 10 px or 10 ppt
-        bindsym --whole-window button4 resize shrink height 10 px or 10 ppt
-        bindsym --whole-window button7 resize grow width 10 px or 10 ppt
-
-        # exit resize mode: Enter or Escape
-        bindsym Escape mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
-        bindsym q mode "default"; exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' ''
+    # exit RESIZE mode: q or Escape
+    bindsym q      exec --no-startup-id my-i3-mode-notify, mode "default"
+    bindsym Escape exec --no-startup-id my-i3-mode-notify, mode "default"
 }
 
-# Randomize wallpaper
-bindsym $mod+F4 exec --no-startup-id nitrogen --set-zoom-fill --random
+# Set print keybinds in a dedicated mode
+bindsym Print exec --no-startup-id my-i3-mode-notify print, mode "print"
+mode "print" {
+    bindsym f       exec --no-startup-id my-flameshot full    && my-i3-mode-notify, mode "default"
+    bindsym Shift+f exec --no-startup-id my-flameshot full -c && my-i3-mode-notify, mode "default"
+
+    bindsym s       exec --no-startup-id my-flameshot gui    && my-i3-mode-notify, mode "default"
+    bindsym Shift+s exec --no-startup-id my-flameshot gui -c && my-i3-mode-notify, mode "default"
+
+    # exit mode PRINT: q or Escape
+    bindsym q      exec --no-startup-id my-i3-mode-notify, mode "default"
+    bindsym Escape exec --no-startup-id my-i3-mode-notify, mode "default"
+}
+
+# Change layout in a dedicated mode
+# bindsym $mod+c exec --no-startup-id notify-send -r 888 'i3 ~ Layout mode' '• (2)columns\N• (3)Columns\n• (a)utosplit\n• (c)ompanion\n• (h)stack\n• (v)stack\n• (s)piral\n• (n)one', mode "LAYOUT"
+# mode "LAYOUT" {
+#     bindsym 2 exec --no-startup-id i3l 2columns       && notify-send -r 888 'i3 ~ Default mode' '', mode "default"
+#     bindsym 3 exec --no-startup-id i3l 3columns       && notify-send -r 888 'i3 ~ Default mode' '', mode "default"
+#     bindsym a exec --no-startup-id i3l autosplit      && notify-send -r 888 'i3 ~ Default mode' '', mode "default"
+#     bindsym c exec --no-startup-id i3l companion      && notify-send -r 888 'i3 ~ Default mode' '', mode "default"
+#     bindsym h exec --no-startup-id i3l hstack         && notify-send -r 888 'i3 ~ Default mode' '', mode "default"
+#     bindsym v exec --no-startup-id i3l vstack         && notify-send -r 888 'i3 ~ Default mode' '', mode "default"
+#     bindsym s exec --no-startup-id i3l spiral outside && notify-send -r 888 'i3 ~ Default mode' '', mode "default"
+#     bindsym n exec --no-startup-id i3l none           && notify-send -r 888 'i3 ~ Default mode' '', mode "default"
+#
+#     # exit mode PRINT: q or Escape
+#     bindsym q      exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' '', mode "default"
+#     bindsym Escape exec --no-startup-id notify-send -r 888 'i3 ~ Default mode' '', mode "default"
+# }
 
 # Autostart applications
-exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
-#exec --no-startup-id my-init-protonvpn
+# exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 
-exec_always --no-startup-id nitrogen --restore
-#exec_always --no-startup-id nitrogen --set-zoom-fill --random
-exec --no-startup-id nm-applet
-#exec --no-startup-id clipit
-exec_always --no-startup-id fix_xcursor
-exec_always --no-startup-id my-init-picom
-exec_always --no-startup-id my-init-polybar
-exec_always --no-startup-id sh ~/.config/remaps
-exec --no-startup-id xfce4-power-manager
-exec --no-startup-id xautolock -time 10 -locker my-blurlock -notify 15 -notifier 'notify-send "Screen locking soon..."'
-# exec --no-startup-id xautolock -time 1 -locker 'my-i3exit suspend' -notify 15 -notifier 'notify-send "Screen going to sleep..."'
-
-# Color palette used for the terminal ( ~/.Xresources file )
-# Colors are gathered based on the documentation:
-# https://i3wm.org/docs/userguide.html#xresources
-# Change the variable name at the place you want to match the color
-# of your terminal like this:
-# [example]
-# If you want your bar to have the same background color as your
-# terminal background change the line 362 from:
-# background #14191D
-# to:
-# background $term_background
-# Same logic applied to everything else.
-set_from_resource $term_background background
-set_from_resource $term_foreground foreground
-set_from_resource $term_color0     color0
-set_from_resource $term_color1     color1
-set_from_resource $term_color2     color2
-set_from_resource $term_color3     color3
-set_from_resource $term_color4     color4
-set_from_resource $term_color5     color5
-set_from_resource $term_color6     color6
-set_from_resource $term_color7     color7
-set_from_resource $term_color8     color8
-set_from_resource $term_color9     color9
-set_from_resource $term_color10    color10
-set_from_resource $term_color11    color11
-set_from_resource $term_color12    color12
-set_from_resource $term_color13    color13
-set_from_resource $term_color14    color14
-set_from_resource $term_color15    color15
+#exec_always --no-startup-id fix_xcursor
+#exec_always --no-startup-id my-init-picom
+#exec_always --no-startup-id my-init-polybar
+#exec --no-startup-id nitrogen --restore
+#exec --no-startup-id nm-applet
+# exec --no-startup-id i3-layouts
+#exec --no-startup-id sh ~/.config/remaps
+#exec --no-startup-id xfce4-power-manager
+#exec --no-startup-id bat-notif 2> /tmp/bat-notif.log
+#exec --no-startup-id xautolock -time 10 -locker my-blurlock -notify 15 -notifier 'notify-send "Screen locking soon..."'
+#exec --no-startup-id mpv ~/media/music/sounds/windows_xp_startup.mp3
 
 # Theme colors
-# class                   border  backgr. text    indic.   child_border
-  client.focused          #B7FFFB #B7FFFB #202020 #B7FFFB
-  client.unfocused        #80B3B0 #80B3B0 #0E0E0E #80B3B0
-  client.focused_inactive #80B3B0 #80B3B0 #0E0E0E #80B3B0
-  client.urgent           #CB4B16 #FDF6E3 #1ABC9C #268BD2
-  client.placeholder      #000000 #0c0c0c #ffffff #000000
-
-  client.background       #2B2C2B
-
-#############################
-### settings for i3-gaps: ###
-#############################
-
-# Set inner/outer gaps
-gaps inner 8
-gaps outer 0
-# leave space for polybar
-gaps bottom 34
+# class                 border  backgr. text    indic.  child_border
+client.focused #50a5a4 #50a5a4 #b3b8c3 #50a5a4
+client.unfocused #52606b #52606b #b3b8c3 #52606b
+client.focused_inactive #52606b #52606b #b3b8c3 #52606b
+# client.focused_inactive #50a5a4 #50a5a4 #b3b8c3 #50a5a4
+client.urgent #e44754 #e44754 #b3b8c3 #e44754
+client.placeholder #50a5a4 #50a5a4 #b3b8c3 #50a5a4
+client.background #121b21

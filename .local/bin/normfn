@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# Copyright (C) 2023  jtmr05
+# Copyright (C) 2023-2024 jtmr05
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,36 +13,152 @@
 # GNU General Public License for more details.
 
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use v5.36;
+use utf8;
+use open ':std', ':encoding(UTF-8)';
 
-my $PROG_NAME = 'normfn';
+use Getopt::Long   qw{GetOptions :config no_ignore_case bundling no_auto_abbrev no_getopt_compat};
+use File::Basename qw{fileparse};
+
+use constant ERROR_SUCCESS        => 0;
+use constant ERROR_ARGUMENTS      => 1;
+use constant ERROR_FILE_NOT_FOUND => 2;
+use constant ERROR_RENAME         => 3;
+use constant ERROR_TARGET_EXISTS  => 4;
+
+$0 = (split m|/|, $0)[-1];
+
+sub get_opts(){
+
+    my $usage_sub = sub {
+        say join "\n", (
+            "Usage: $0 [OPTION]... FILE...",
+            "Rename files by replacing special characters with underscores.",
+            "",
+            "Available options:",
+            "  -f, --force        override existing files",
+            "  -h, --help         print this message and exit",
+            "  -i, --interactive  prompt user before proceding",
+            "  -d, --dash         use dash as separator",
+            "  -u, --underscore   use underscore as separator (default)",
+            "  -v, --verbose      be more verbose",
+        );
+        exit ERROR_SUCCESS;
+    };
+
+    my $arg_error = sub {
+        say STDERR join "\n", (
+            "$0 missing file operand",
+            "Try '$0 --help' for more information.",
+        );
+        exit ERROR_ARGUMENTS;
+    };
+
+    my $vars = {
+        files       => [],
+        force       => 0,
+        interactive => 0,
+        sep         => '_',
+        verbose     => 0,
+    };
+
+    GetOptions(
+        'dash|d'        => sub { $vars->{sep} = '-' },
+        'force|f'       => \$vars->{force},
+        'help|h'        => $usage_sub,
+        'interactive|i' => \$vars->{interactive},
+        'underscore|u'  => sub { $vars->{sep} = '_' },
+        'verbose|v'     => \$vars->{verbose},
+        '<>'            => sub ($f){ push @{$vars->{files}}, $f },
+    );
+
+    $arg_error->() if(scalar @{$vars->{files}} == 0);
+    return $vars;
+}
+
+sub make_rename_interactive($old_name, $new_name, $force, $verbose){
+
+    print "$0 rename '$old_name' to '$new_name'? ";
+    my $answer = <STDIN>;
+    return 0 unless($answer =~ m/^y(es)?$/i);
+
+    return make_rename($old_name, $new_name, $force, $verbose);
+}
+
+sub make_rename($old_name, $new_name, $force, $verbose){
+
+    if(!$force and -e $new_name){
+        say STDERR "$0 '$new_name': file exists";
+        return ERROR_TARGET_EXISTS;
+    }
+
+    if(rename $old_name, $new_name){
+        if($verbose){
+            say "'$old_name' -> '$new_name'";
+        }
+    }
+    else {
+        say STDERR "$0 '$new_name': $!";
+        return ERROR_RENAME;
+    }
+
+    return ERROR_SUCCESS;
+}
+
+sub get_new_name($old_name, $sep){
+
+    my ($old_base_name, $dir_path) = fileparse($old_name =~ s|/$||r);
+
+    my $new_base_name =
+    (
+        (
+            (
+                (
+                    $old_base_name =~ s|[\\\|!\?\$@%&\-_:;,"'^`´+*#=<>\[\]\{\}()]| |gr
+                )
+                =~ s|\s+\.|.|gr
+            )
+            =~ s/^\s+|\s+$//gr
+        )
+        =~ s/\s+/$sep/gr
+    );
+
+    return $dir_path . $new_base_name;
+}
 
 sub main(){
 
-    my @files = @ARGV;
+    my $ret = ERROR_SUCCESS;
 
-    if(scalar @files == 0){
-        say STDERR "usage: $PROG_NAME FILE...";
-        say STDERR "Rename files by replacing special characters with underscores.";
-        return 1;
-    }
+    my %opts       = get_opts()->%*;
+    my $force      = $opts{force};
+    my $rename_sub = $opts{interactive} ? \&make_rename_interactive : \&make_rename;
+    my $sep        = $opts{sep};
+    my $verbose    = $opts{verbose};
+    my @files      = $opts{files}->@*;
 
     foreach my $old_name (@files){
 
-        my $new_name = $old_name;
-
-        $new_name =~ s|[-_<>\|:&();,"']| |g;
-        $new_name =~ s/^\s+|\s+$//g;
-        $new_name =~ s/\s+/_/g;
-
-        if($old_name ne $new_name){
-            system "mv '$old_name' $new_name";
+        unless(-e $old_name){
+            say STDERR "$0 '$old_name': $!";
+            $ret ||= ERROR_FILE_NOT_FOUND;
+            next;
         }
+
+        my $new_name = get_new_name($old_name, $sep);
+        if($old_name eq $new_name){
+            if($verbose){
+                say STDERR "$0 '$old_name': nothing to do";
+            }
+            next;
+        }
+
+        $ret ||= $rename_sub->($old_name, $new_name, $force, $verbose);
     }
 
-    return 0;
+    return $ret;
 }
 
-exit main() unless(caller);
+exit main();

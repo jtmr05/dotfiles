@@ -1,0 +1,59 @@
+{
+    "logo": {
+        "type": "small",
+        "source": "Manjaro",
+        "color": {
+            "1": "light_cyan",
+        },
+    },
+    "display": {
+        "color": "cyan",
+    },
+
+    "modules": [
+        "title",
+        "separator",
+        {
+            "type": "os",
+            "format": "{/3}{-}{/}{/12}{-}{/}{3} {12}",
+        },
+        "kernel",
+        "uptime",
+        {
+            "type": "packages",
+            "format": "{/2}{-}{/}{2}",
+        },
+        "shell",
+        {
+            "type": "display",
+            "compactType": "original",
+            "key": "Resolution",
+        },
+        {
+            "type": "wm",
+            "format": "{/2}{-}{/}{2}",
+        },
+        "theme",
+        "icons",
+        {
+            "type": "terminal",
+            "format": "{/5}{-}{/}{5}",
+        },
+        {
+            "type": "cpu",
+            "format": "{/1}{-}{/}{/4}{-}{/}{1} ({4})",
+        },
+        {
+            "type": "gpu",
+            "key": "GPU",
+            "format": "{/1}{-}{/}{/2}{-}{/}{1} {2}",
+        },
+        {
+            "type": "memory",
+            "format": "{/1}{-}{/}{/2}{-}{/}{1} / {2}",
+        },
+        "break",
+        "colors",
+    ],
+}
+

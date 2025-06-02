@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (C) 2023  jtmr05
+# Copyright (C) 2023-2025 jtmr05
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,35 +13,129 @@
 # GNU General Public License for more details.
 
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-SCRIPT_NAME=silent
+SCRIPT_NAME="${0##*/}"
 
 usage(){
-    echo "Usage: $SCRIPT_NAME PROG [ARGS]..."
-    echo "Silently execute PROG with arguments ARGS"
-    echo ""
-    echo "Available options: "
-    echo  "  -h, --help      print this message and exit"
+    echo "Usage: $SCRIPT_NAME [OPTION]... [--] PROG [ARGS]..."
+    echo "   or: $SCRIPT_NAME [OPTION]... COMMAND_STRING"
+    echo 'Silently execute PROG with arguments ARGS.'
+    echo ''
+    echo 'Available options:'
+    echo '  -e FILE   redirect stderr to FILE'
+    echo '  -h        print this message and exit'
+    echo '  -o FILE   redirect stdout to FILE'
+
+    exit 0
 }
 
-if [ $# -eq 0 ]; then
-    echo "$SCRIPT_NAME: missing operand"                  > /dev/stderr
-    echo "Try '$SCRIPT_NAME --help' for more information" > /dev/stderr
+try(){
+    echo "Try '$SCRIPT_NAME -h' for more information" > /dev/stderr
     exit 1
-fi
+}
 
+# load array manipulation utility functions
+. "$HOME/.local/lib/array.sh"
 
-cmd=""
+# options
+out_file=/dev/null
+err_file=/dev/null
 
-for arg in "$@"; do
-    if [ "$arg" = '-h' ] || [ "$arg" = '--help' ]; then
-        exit 0
-    else
-        cmd="$cmd $arg"
-    fi
+index=1; while [ "$index" -le $# ]; do
+
+    elem="$(eval "$(array_index "$index")")"
+    case "$elem" in
+        '-')
+            echo "$SCRIPT_NAME: warning: single dash ignored" > /dev/stderr
+            eval "$(array_remove "$index" "$@")"
+            ;;
+        -*)
+            eval "$(array_remove "$index" "$@")"
+            opts="${elem#-}"
+
+            while [ -n "$opts" ]; do
+                opt=$(printf '%c' "$opts")
+                case "$opt" in
+                    'e')
+                        elem="$(eval "$(array_index "$index")")"
+                        if [ -z "$elem" ]; then
+                            echo "$SCRIPT_NAME: '-$opt': option requires an argument" > /dev/stderr
+                            try
+                        fi
+                        eval "$(array_remove "$index" "$@")"
+                        err_file="$elem"
+                        ;;
+                    'h')
+                        usage
+                        ;;
+                    'o')
+                        elem="$(eval "$(array_index "$index")")"
+                        if [ -z "$elem" ]; then
+                            echo "$SCRIPT_NAME: '-$opt': option requires an argument" > /dev/stderr
+                            try
+                        fi
+                        eval "$(array_remove "$index" "$@")"
+                        out_file="$elem"
+                        ;;
+                    '-')
+                        break 2
+                        ;;
+                    *)
+                        echo "$SCRIPT_NAME: '-$opt': unrecognized option" > /dev/stderr
+                        try
+                        ;;
+                esac
+                opts="${opts#"$opt"}"
+            done
+            ;;
+        *)
+            index=$((index+1))
+            ;;
+    esac
 done
 
-sh -c "$cmd > /dev/null 2> /dev/null &"
+if [ $# -eq 0 ]; then
+    echo "$SCRIPT_NAME: missing operand" > /dev/stderr
+    try
+fi
 
-# TODO port to perl (shell sucks!)
+# if ! command -v "$1" > /dev/null 2>&1; then
+#     echo "$SCRIPT_NAME: '$1': command not found" > /dev/stderr
+#     exit 2
+# fi
+
+exit_val=0
+
+[ -e "$out_file" ] || touch "$out_file" || {
+    echo "$SCRIPT_NAME: '$out_file': cannot create file" &&
+    out_file=/dev/null &&
+    exit_val=3
+}
+
+[ -e "$err_file" ] || touch "$err_file" || {
+    echo "$SCRIPT_NAME: '$err_file': cannot create file" &&
+    err_file=/dev/null &&
+    exit_val=3
+}
+
+[ -w "$out_file" ] || {
+    echo "$SCRIPT_NAME: '$out_file': no write permission" &&
+    out_file=/dev/null &&
+    exit_val=4
+}
+
+[ -w "$err_file" ] || {
+    echo "$SCRIPT_NAME: '$err_file': no write permission" &&
+    err_file=/dev/null &&
+    exit_val=4
+}
+
+# nohup "$@" > "$out_file" 2> "$err_file" &
+
+# FIXME properly handle shell operators in $@
+# set -x
+sh -c "{ $*; } > '$out_file' 2> '$err_file' &"
+# set +x
+
+exit "$exit_val"
