@@ -2,6 +2,7 @@
 
 CONFIG_FILES :=\
 	.config/alacritty/alacritty.toml\
+	.config/aliases.sh\
 	.config/btop/btop.conf\
 	.config/clipit\
 	.config/dir_colors\
